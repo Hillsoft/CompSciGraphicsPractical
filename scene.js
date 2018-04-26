@@ -70,6 +70,7 @@ function CubeModel()
 	];
 
 	initModel(this);
+	registerDrawObject(this);
 
 	return this;
 }

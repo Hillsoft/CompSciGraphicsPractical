@@ -1,27 +1,9 @@
-var objects = {
+var drawObjects = {
 	next: null
 };
 
-function registerObject(obj)
-{
-	objects.next = {
-		val: obj,
-		next: objects.next
-	};
-}
-
-function unregisterObject(obj)
-{
-	var curObject = objects;
-	while (curObject.next != null)
-	{
-		if (curObject.next.val == obj)
-		{
-			curObject.next = curObject.next.next;
-		}
-		curObject = curObject.next;
-	}
-}
+var registerDrawObject = llAdd(drawObjects);
+var unregisterDrawObject = llRemove(drawObjects);
 
 function drawScene()
 {
@@ -36,7 +18,7 @@ function drawScene()
 	var pMatrix = camera.getProjectionMatrix();
 	var vMatrix = camera.getViewMatrix();
 
-	var curObject = objects.next;
+	var curObject = drawObjects.next;
 	while (curObject != null)
 	{
 		drawModel(curObject.val, pMatrix, vMatrix);

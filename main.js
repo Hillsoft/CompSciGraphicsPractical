@@ -2,18 +2,39 @@ var canvas = null;
 var gl = null;
 var basicShader = null;
 var camera = null;
+var tickObjects = {
+	next: null
+};
+var oldTime = 0;
+
+var registerTickObject = llAdd(tickObjects);
+var unregisterTickObject = llRemove(tickObjects);
 
 function graphicsInit(canvasId)
 {
 	canvas = document.getElementById(canvasId);
+
+	document.addEventListener("pointerlockchange", pointerLockChange, false);
+	document.addEventListener("mozpointerlockchange", pointerLockChange, false);
+	document.addEventListener("webkitpointerlockchange", pointerLockChange, false);
+
+	$("#" + canvasId).click(function() {
+		var clickedEl = $("#" + canvasId).get()[0];
+		clickedEl.requestPointerLock = clickedEl.requestPointerLock ||
+							clickedEl.mozRequestPointerLock ||
+							clickedEl.webkitRequestPointerLock;
+
+		clickedEl.requestPointerLock();
+	});
+
 	gl = canvas.getContext("experimental-webgl");
 
 	loadResources(function() {
-		camera = new Camera(40, canvas.width / canvas.height, 1, 100);
+		camera = new FPSCamera(50, canvas.width / canvas.height, 1, 100);
 
-		registerObject(new CubeModel());
+		new CubeModel();
 
-		mainLoop();
+		mainLoop(0);
 	});
 }
 
@@ -47,8 +68,19 @@ function loadResources(callback)
 	});
 }
 
-function mainLoop()
+function mainLoop(time)
 {
+	var dt = time - oldTime;
+	oldTime = time;
+	$("#time").html(dt + "ms");
+
+	var curObject = tickObjects.next;
+	while (curObject != null)
+	{
+		curObject.val.tick(dt);
+		curObject = curObject.next;
+	}
+
 	drawScene();
 
 	window.requestAnimationFrame(mainLoop);

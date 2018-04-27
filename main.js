@@ -35,9 +35,9 @@ function graphicsInit(canvasId)
 	loadResources(function() {
 		camera = new FPSCamera(50, canvas.width / canvas.height, 1, 100);
 
-		// new CubeModel();
-
-		registerDrawObject(resources.suzanne);
+		new StaticMesh(resources.suzanne, [ 0, 0, 0 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
+		new StaticMesh(resources.suzanne, [ -3, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
+		new StaticMesh(resources.suzanne, [ 3, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
 
 		mainLoop(0);
 	});

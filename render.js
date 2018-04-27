@@ -21,7 +21,8 @@ function drawScene()
 	var curObject = drawObjects.next;
 	while (curObject != null)
 	{
-		drawModel(curObject.val, pMatrix, vMatrix);
+		// drawModel(curObject.val, pMatrix, vMatrix);
+		curObject.val.draw(pMatrix, vMatrix);
 		curObject = curObject.next;
 	}
 }

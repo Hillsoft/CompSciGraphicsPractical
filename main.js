@@ -1,13 +1,16 @@
 var canvas = null;
 var gl = null;
 var basicShader = null;
+var textureShader = null;
 var camera = null;
 var tickObjects = {
 	next: null
 };
 var oldTime = 0;
 var resources = {
-	suzanne: null
+	suzanne: null,
+	billboard: null,
+	cube: null,
 };
 
 var registerTickObject = llAdd(tickObjects);
@@ -43,26 +46,58 @@ function graphicsInit(canvasId)
 	});
 }
 
+function loadImage(src)
+{
+	var image = new Image();
+	var dfd = new $.Deferred();
+
+	image.src = src;
+	image.onload = function() {
+		var texture = gl.createTexture();
+		gl.bindTexture(gl.TEXTURE_2D, texture);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+		gl.generateMipmap(gl.TEXTURE_2D);
+		dfd.resolve(texture);
+	}
+
+	return dfd;
+}
+
+function makeProgram(vertexCode, fragmentCode)
+{
+	var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+	gl.shaderSource(vertexShader, vertexCode);
+	gl.compileShader(vertexShader);
+
+	var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+	gl.shaderSource(fragmentShader, fragmentCode);
+	gl.compileShader(fragmentShader);
+
+	var program = gl.createProgram();
+	gl.attachShader(program, vertexShader);
+	gl.attachShader(program, fragmentShader);
+	gl.linkProgram(program);
+
+	return program;
+}
+
 function loadResources(callback)
 {
 	$.when(
 		$.ajax("shaders/basicVertexShader.glsl"),
 		$.ajax("shaders/basicFragmentShader.glsl"),
+		$.ajax("shaders/textureVertexShader.glsl"),
+		$.ajax("shaders/textureFragmentShader.glsl"),
 		$.ajax("res/suzanne/suzanne.obj"),
-	).done(function(bvs, bfs, su) {
-		var basicVertexShader = gl.createShader(gl.VERTEX_SHADER);
-		gl.shaderSource(basicVertexShader, bvs[0]);
-		gl.compileShader(basicVertexShader);
-
-		var basicFragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-		gl.shaderSource(basicFragmentShader, bfs[0]);
-		gl.compileShader(basicFragmentShader);
-
-		basicShader = {};
-		basicShader.program = gl.createProgram();
-		gl.attachShader(basicShader.program, basicVertexShader);
-		gl.attachShader(basicShader.program, basicFragmentShader);
-		gl.linkProgram(basicShader.program);
+		loadImage("res/suzanne/ao.png"),
+		$.ajax("res/billboard/billboard.obj"),
+		loadImage("res/billboard/billboard.png"),
+		$.ajax("res/cube/cube.obj"),
+		loadImage("res/cube/cube.png"),
+	).done(function(bvs, bfs, tvs, tfs, su, suao, bill, billtex, cube, cubetex) {
+		basicShader = {
+			program: makeProgram(bvs[0], bfs[0])
+		};
 
 		basicShader.pMatrix = gl.getUniformLocation(basicShader.program, "pMatrix");
 		basicShader.vMatrix = gl.getUniformLocation(basicShader.program, "vMatrix");
@@ -70,7 +105,20 @@ function loadResources(callback)
 		basicShader.position = gl.getAttribLocation(basicShader.program, "position");
 		basicShader.color = gl.getAttribLocation(basicShader.program, "color");
 
-		resources.suzanne = new Model(su[0]);
+		textureShader = {
+			program: makeProgram(tvs[0], tfs[0])
+		};
+
+		textureShader.pMatrix = gl.getUniformLocation(textureShader.program, "pMatrix");
+		textureShader.vMatrix = gl.getUniformLocation(textureShader.program, "vMatrix");
+		textureShader.mMatrix = gl.getUniformLocation(textureShader.program, "mMatrix");
+		textureShader.diffuse = gl.getUniformLocation(textureShader.program, "diffuseTex");
+		textureShader.position = gl.getAttribLocation(textureShader.program, "position");
+		textureShader.texcoord = gl.getAttribLocation(textureShader.program, "texcoord");
+
+		resources.suzanne = new Model(su[0], suao);
+		resources.billboard = new Model(bill[0], billtex);
+		resources.cube = new Model(cube[0], cubetex);
 
 		callback();
 	});

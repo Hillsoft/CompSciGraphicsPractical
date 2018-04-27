@@ -74,3 +74,51 @@ function CubeModel()
 
 	return this;
 }
+
+function Model(objData)
+{
+	this.vertices = [];
+	this.colors = [];
+	this.faceIndices = [];
+
+	var lines = objData.split("\n");
+	var vertOffset = -1;
+	for (var i = 0; i < lines.length; i++)
+	{
+		var parts = lines[i].split(" ");
+		if (parts[0] == "v")
+		{
+			// vertex command
+			this.vertices.push(parseFloat(parts[1]));
+			this.vertices.push(parseFloat(parts[2]));
+			this.vertices.push(parseFloat(parts[3]));
+			this.colors.push(1); this.colors.push(1); this.colors.push(1);
+		}
+		else if (parts[0] == "f")
+		{
+			var firstVertex = parseInt(parts[1].split("/")[0]) + vertOffset;
+			var prevVertex = null;
+			for (var j = 2; j < parts.length; j++)
+			{
+				if (j % 2 == 0)
+				{
+					this.faceIndices.push(firstVertex);
+					if (j > 2)
+						this.faceIndices.push(prevVertex);
+				}
+
+				var vtn = parts[j].split("/");
+				this.faceIndices.push(parseInt(vtn[0]) + vertOffset);
+				prevVertex = parseInt(vtn[0]) + vertOffset;
+			}
+		}
+		else if (parts[0] == "o")
+		{
+			// vertOffset = this.vertices.length - 1;
+		}
+	}
+
+	initModel(this);
+
+	return this;
+}

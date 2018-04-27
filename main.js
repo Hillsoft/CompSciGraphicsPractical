@@ -6,6 +6,9 @@ var tickObjects = {
 	next: null
 };
 var oldTime = 0;
+var resources = {
+	suzanne: null
+};
 
 var registerTickObject = llAdd(tickObjects);
 var unregisterTickObject = llRemove(tickObjects);
@@ -32,7 +35,9 @@ function graphicsInit(canvasId)
 	loadResources(function() {
 		camera = new FPSCamera(50, canvas.width / canvas.height, 1, 100);
 
-		new CubeModel();
+		// new CubeModel();
+
+		registerDrawObject(resources.suzanne);
 
 		mainLoop(0);
 	});
@@ -42,8 +47,9 @@ function loadResources(callback)
 {
 	$.when(
 		$.ajax("shaders/basicVertexShader.glsl"),
-		$.ajax("shaders/basicFragmentShader.glsl")
-	).done(function(bvs, bfs) {
+		$.ajax("shaders/basicFragmentShader.glsl"),
+		$.ajax("res/suzanne/suzanne.obj"),
+	).done(function(bvs, bfs, su) {
 		var basicVertexShader = gl.createShader(gl.VERTEX_SHADER);
 		gl.shaderSource(basicVertexShader, bvs[0]);
 		gl.compileShader(basicVertexShader);
@@ -63,6 +69,8 @@ function loadResources(callback)
 		basicShader.mMatrix = gl.getUniformLocation(basicShader.program, "mMatrix");
 		basicShader.position = gl.getAttribLocation(basicShader.program, "position");
 		basicShader.color = gl.getAttribLocation(basicShader.program, "color");
+
+		resources.suzanne = new Model(su[0]);
 
 		callback();
 	});

@@ -8,8 +8,12 @@ function drawModel(model, pMatrix, vMatrix, mMatrix)
 	gl.bindBuffer(gl.ARRAY_BUFFER, model.uv_buffer);
 	gl.vertexAttribPointer(textureShader.texcoord, 2, gl.FLOAT, false, 0, 0);
 
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.normal_buffer);
+	gl.vertexAttribPointer(textureShader.normal, 3, gl.FLOAT, false, 0, 0);
+
 	gl.enableVertexAttribArray(textureShader.position);
 	gl.enableVertexAttribArray(textureShader.texcoord);
+	gl.enableVertexAttribArray(textureShader.normal);
 
 	gl.uniformMatrix4fv(textureShader.pMatrix, false, pMatrix);
 	gl.uniformMatrix4fv(textureShader.vMatrix, false, vMatrix);
@@ -32,6 +36,10 @@ function initModel(model)
 	model.uv_buffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, model.uv_buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model.uvs), gl.STATIC_DRAW);
+
+	model.normal_buffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.normal_buffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model.normals), gl.STATIC_DRAW);
 
 	model.index_buffer = gl.createBuffer();
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.index_buffer);
@@ -74,12 +82,14 @@ function Model(objData, texture)
 {
 	this.vertices = [];
 	this.uvs = [];
+	this.normals = [];
 	this.faceIndices = [];
 
 	var lines = objData.split("\n");
 	var vertOffset = -1;
 	var rawvertices = [];
 	var rawuvs = [];
+	var rawnormals = [];
 	var currentIndex = 0;
 	for (var i = 0; i < lines.length; i++)
 	{
@@ -95,6 +105,12 @@ function Model(objData, texture)
 		{
 			rawuvs.push(parseFloat(parts[1]));
 			rawuvs.push(1.0 - parseFloat(parts[2]));
+		}
+		else if (parts[0] == "vn")
+		{
+			rawnormals.push(parseFloat(parts[1]));
+			rawnormals.push(parseFloat(parts[2]));
+			rawnormals.push(parseFloat(parts[3]));
 		}
 		else if (parts[0] == "f")
 		{
@@ -113,6 +129,9 @@ function Model(objData, texture)
 				this.vertices.push(rawvertices[3 * (parseInt(vtn[0]) + vertOffset) + 2]);
 				this.uvs.push(rawuvs[2 * (parseInt(vtn[1]) + vertOffset)]);
 				this.uvs.push(rawuvs[2 * (parseInt(vtn[1]) + vertOffset) + 1]);
+				this.normals.push(rawnormals[3 * (parseInt(vtn[2]) + vertOffset)]);
+				this.normals.push(rawnormals[3 * (parseInt(vtn[2]) + vertOffset) + 1]);
+				this.normals.push(rawnormals[3 * (parseInt(vtn[2]) + vertOffset) + 2]);
 				this.faceIndices.push(currentIndex);
 				currentIndex++;
 			}

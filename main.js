@@ -11,6 +11,7 @@ var resources = {
 	suzanne: null,
 	billboard: null,
 	cube: null,
+	floor: null,
 };
 
 var registerTickObject = llAdd(tickObjects);
@@ -31,6 +32,11 @@ function graphicsInit(canvasId)
 							clickedEl.webkitRequestPointerLock;
 
 		clickedEl.requestPointerLock();
+
+		canvas.requestFullScreen = canvas.requestFullScreen ||
+			canvas.mozRequestFullScreen ||
+			canvas.webkitRequestFullScreen;
+		canvas.requestFullScreen();
 	});
 
 	gl = canvas.getContext("experimental-webgl");
@@ -41,6 +47,14 @@ function graphicsInit(canvasId)
 		new StaticMesh(resources.suzanne, [ 0, 0, 0 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
 		new StaticMesh(resources.suzanne, [ -3, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
 		new StaticMesh(resources.suzanne, [ 3, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
+
+		for (var x = -10; x <= 10; x += 2)
+		{
+			for (var y = -10; y <= 10; y += 2)
+			{
+				new StaticMesh(resources.floor, [ x, -1.5, y ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
+			}
+		}
 
 		mainLoop(0);
 	});
@@ -94,7 +108,9 @@ function loadResources(callback)
 		loadImage("res/billboard/billboard.png"),
 		$.ajax("res/cube/cube.obj"),
 		loadImage("res/cube/cube.png"),
-	).done(function(bvs, bfs, tvs, tfs, su, suao, bill, billtex, cube, cubetex) {
+		$.ajax("res/stonefloor/stonefloor.obj"),
+		loadImage("res/stonefloor/diffuseaoblend.jpg"),
+	).done(function(bvs, bfs, tvs, tfs, su, suao, bill, billtex, cube, cubetex, floor, floortex) {
 		basicShader = {
 			program: makeProgram(bvs[0], bfs[0])
 		};
@@ -114,11 +130,13 @@ function loadResources(callback)
 		textureShader.mMatrix = gl.getUniformLocation(textureShader.program, "mMatrix");
 		textureShader.diffuse = gl.getUniformLocation(textureShader.program, "diffuseTex");
 		textureShader.position = gl.getAttribLocation(textureShader.program, "position");
+		textureShader.normal = gl.getAttribLocation(textureShader.program, "normal");
 		textureShader.texcoord = gl.getAttribLocation(textureShader.program, "texcoord");
 
 		resources.suzanne = new Model(su[0], suao);
 		resources.billboard = new Model(bill[0], billtex);
 		resources.cube = new Model(cube[0], cubetex);
+		resources.floor = new Model(floor[0], floortex);
 
 		callback();
 	});

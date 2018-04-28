@@ -1,13 +1,17 @@
+#version 300 es
+
 precision mediump float;
-varying vec2 vTexcoord;
-varying vec3 vNormal;
+in vec2 vTexcoord;
+in vec3 vNormal;
+in vec3 vPosition;
 
 uniform sampler2D diffuseTex;
 
+out vec4 fragColor[3];
+
 void main(void)
 {
-	float lightingValue = clamp(dot(vNormal, normalize(vec3(-1.0, 1.0, 0.0))), 0.0, 1.0);
-	lightingValue += 0.3;
-	lightingValue = clamp(lightingValue, 0.0, 1.0);
-	gl_FragColor = vec4(vec3(lightingValue), 1.0) * texture2D(diffuseTex, vTexcoord);
+	fragColor[0] = texture(diffuseTex, vTexcoord);
+	fragColor[1] = vec4(vNormal, 1.0);
+	fragColor[2] = vec4(vPosition, 1.0);
 }

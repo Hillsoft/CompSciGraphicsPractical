@@ -13,6 +13,10 @@ var resources = {
 	cube: null,
 	floor: null,
 };
+var stats = {
+	triangles: 0,
+	lights: 1
+};
 
 var registerTickObject = llAdd(tickObjects);
 var unregisterTickObject = llRemove(tickObjects);
@@ -146,7 +150,13 @@ function mainLoop(time)
 {
 	var dt = time - oldTime;
 	oldTime = time;
-	$("#time").html(dt + "ms");
+	if (!mouseLocked)
+	{
+		$("#time").html(dt + "ms");
+		$("#fps").html(1000/dt);
+		$("#tris").html(stats.triangles);
+		$("#lights").html(stats.lights);
+	}
 
 	var curObject = tickObjects.next;
 	while (curObject != null)

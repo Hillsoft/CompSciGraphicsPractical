@@ -169,6 +169,7 @@ function StaticMesh(model, position, facing, up)
 	];
 
 	registerDrawObject(this);
+	stats.triangles += this.model.faceIndices.length / 3;
 
 	return this;
 }

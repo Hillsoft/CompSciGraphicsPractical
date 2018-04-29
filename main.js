@@ -195,6 +195,9 @@ function loadResources(callback)
 		deferredShader.diffuseTex = gl.getUniformLocation(deferredShader.program, "diffuseTex");
 		deferredShader.normalTex = gl.getUniformLocation(deferredShader.program, "normalTex");
 		deferredShader.positionTex = gl.getUniformLocation(deferredShader.program, "positionTex");
+		deferredShader.lights = gl.getUniformLocation(deferredShader.program, "lights");
+		deferredShader.lightColors = gl.getUniformLocation(deferredShader.program, "lightColors");
+		deferredShader.lightNum = gl.getUniformLocation(deferredShader.program, "numLights");
 		deferredShader.position = gl.getAttribLocation(deferredShader.program, "position");
 
 		resources.suzanne = new Model(su[0], suao);
@@ -232,6 +235,11 @@ function mainLoop(time)
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
 	gl.useProgram(deferredShader.program);
+
+	gl.uniform1i(deferredShader.lightNum, 2);
+
+	gl.uniform3fv(deferredShader.lights, [ -10.0, 10.0, 0.0, 10.0, 10.0, 0.0 ]);
+	gl.uniform3fv(deferredShader.lightColors, [ 20.0, 20.0, 50.0, 100.0, 40.0, 40.0 ]);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, quad.vertices);
 	gl.vertexAttribPointer(deferredShader.position, 2, gl.FLOAT, false, 0, 0);

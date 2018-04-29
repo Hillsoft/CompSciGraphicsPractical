@@ -53,11 +53,11 @@ function FPSCamera(angle, a, zMin, zMax)
 		}
 		if (pressedKeys[cameraControls.left])
 		{
-			this.position = addVectors(this.position, scaleVector(change, cross(this.up, this.getFacing())));
+			this.position = addVectors(this.position, scaleVector(change, normalize(cross(this.up, this.getFacing()))));
 		}
 		if (pressedKeys[cameraControls.right])
 		{
-			this.position = addVectors(this.position, scaleVector(-change, cross(this.up, this.getFacing())));
+			this.position = addVectors(this.position, scaleVector(-change, normalise(cross(this.up, this.getFacing()))));
 		}
 	}
 

@@ -76,6 +76,12 @@ function graphicsInit(canvasId)
 	gl.bindTexture(gl.TEXTURE_2D, frameBufferTexs[3]);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, canvas.width, canvas.height, 0, gl.RGBA, gl.FLOAT, null);
+
+	frameBufferTexs[4] = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, frameBufferTexs[4]);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT16, canvas.width, canvas.height, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_SHORT, null);
 
 	frameBuffer = gl.createFramebuffer();
@@ -83,12 +89,14 @@ function graphicsInit(canvasId)
 	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, frameBufferTexs[0], 0);
 	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, frameBufferTexs[1], 0);
 	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT2, gl.TEXTURE_2D, frameBufferTexs[2], 0);
-	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, frameBufferTexs[3], 0);
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT3, gl.TEXTURE_2D, frameBufferTexs[3], 0);
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, frameBufferTexs[4], 0);
 
 	gl.drawBuffers([
 		gl.COLOR_ATTACHMENT0,
 		gl.COLOR_ATTACHMENT1,
 		gl.COLOR_ATTACHMENT2,
+		gl.COLOR_ATTACHMENT3,
 	]);
 
 	var quadVerts = [ 1, 1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1 ];
@@ -163,6 +171,7 @@ function loadResources(callback)
 		$.ajax("res/suzanne/suzanne.obj"),
 		loadImage("res/suzanne/ao.png"),
 		loadImage("res/suzanne/normals.png"),
+		loadImage("res/suzanne/roughness.png"),
 		$.ajax("res/billboard/billboard.obj"),
 		loadImage("res/billboard/billboard.png"),
 		$.ajax("res/cube/cube.obj"),
@@ -170,7 +179,8 @@ function loadResources(callback)
 		$.ajax("res/stonefloor/stonefloor.obj"),
 		loadImage("res/stonefloor/diffuseaoblend.jpg"),
 		loadImage("res/stonefloor/normals.jpg"),
-	).done(function(bvs, bfs, tvs, tfs, dvs, dfs, su, suao, suno, bill, billtex, cube, cubetex, floor, floortex, floornorm) {
+		loadImage("res/stonefloor/roughness.jpg"),
+	).done(function(bvs, bfs, tvs, tfs, dvs, dfs, su, suao, suno, surough, bill, billtex, cube, cubetex, floor, floortex, floornorm, floorrough) {
 		basicShader = {
 			program: makeProgram(bvs[0], bfs[0])
 		};
@@ -190,6 +200,7 @@ function loadResources(callback)
 		textureShader.mMatrix = gl.getUniformLocation(textureShader.program, "mMatrix");
 		textureShader.diffuse = gl.getUniformLocation(textureShader.program, "diffuseTex");
 		textureShader.normalTex = gl.getUniformLocation(textureShader.program, "normalTex");
+		textureShader.roughnessTex = gl.getUniformLocation(textureShader.program, "roughnessTex");
 		textureShader.position = gl.getAttribLocation(textureShader.program, "position");
 		textureShader.normal = gl.getAttribLocation(textureShader.program, "normal");
 		textureShader.texcoord = gl.getAttribLocation(textureShader.program, "texcoord");
@@ -203,16 +214,17 @@ function loadResources(callback)
 		deferredShader.diffuseTex = gl.getUniformLocation(deferredShader.program, "diffuseTex");
 		deferredShader.normalTex = gl.getUniformLocation(deferredShader.program, "normalTex");
 		deferredShader.positionTex = gl.getUniformLocation(deferredShader.program, "positionTex");
+		deferredShader.roughnessTex = gl.getUniformLocation(deferredShader.program, "roughnessTex");
 		deferredShader.lights = gl.getUniformLocation(deferredShader.program, "lights");
 		deferredShader.lightColors = gl.getUniformLocation(deferredShader.program, "lightColors");
 		deferredShader.lightNum = gl.getUniformLocation(deferredShader.program, "numLights");
 		deferredShader.cameraPosition = gl.getUniformLocation(deferredShader.program, "cameraPosition");
 		deferredShader.position = gl.getAttribLocation(deferredShader.program, "position");
 
-		resources.suzanne = new Model(su[0], suao, suno);
+		resources.suzanne = new Model(su[0], suao, suno, surough);
 		// resources.billboard = new Model(bill[0], billtex);
 		// resources.cube = new Model(cube[0], cubetex);
-		resources.floor = new Model(floor[0], floortex, floornorm);
+		resources.floor = new Model(floor[0], floortex, floornorm, floorrough);
 
 		callback();
 	});
@@ -266,6 +278,10 @@ function mainLoop(time)
 	gl.activeTexture(gl.TEXTURE2);
 	gl.bindTexture(gl.TEXTURE_2D, frameBufferTexs[2]);
 	gl.uniform1i(deferredShader.positionTex, 2);
+
+	gl.activeTexture(gl.TEXTURE3);
+	gl.bindTexture(gl.TEXTURE_2D, frameBufferTexs[3]);
+	gl.uniform1i(deferredShader.roughnessTex, 3);
 
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
 

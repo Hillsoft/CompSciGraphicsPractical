@@ -35,6 +35,10 @@ function drawModel(model, pMatrix, vMatrix, mMatrix)
 	gl.bindTexture(gl.TEXTURE_2D, model.normalTex);
 	gl.uniform1i(textureShader.normalTex, 1);
 
+	gl.activeTexture(gl.TEXTURE2);
+	gl.bindTexture(gl.TEXTURE_2D, model.roughnessTex);
+	gl.uniform1i(textureShader.roughnessTex, 2);
+
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.index_buffer);
 	gl.drawElements(gl.TRIANGLES, model.faceIndices.length, gl.UNSIGNED_SHORT, 0);
 }
@@ -98,7 +102,7 @@ function CubeModel()
 	return this;
 }
 
-function Model(objData, texture, normalTex)
+function Model(objData, texture, normalTex, roughnessTex)
 {
 	this.vertices = [];
 	this.uvs = [];
@@ -252,6 +256,7 @@ function Model(objData, texture, normalTex)
 
 	this.texture = texture;
 	this.normalTex = normalTex;
+	this.roughnessTex = roughnessTex;
 
 	initModel(this);
 

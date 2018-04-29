@@ -11,9 +11,17 @@ function drawModel(model, pMatrix, vMatrix, mMatrix)
 	gl.bindBuffer(gl.ARRAY_BUFFER, model.normal_buffer);
 	gl.vertexAttribPointer(textureShader.normal, 3, gl.FLOAT, false, 0, 0);
 
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.tangent_buffer);
+	gl.vertexAttribPointer(textureShader.tangent, 3, gl.FLOAT, false, 0, 0);
+
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.biTangent_buffer);
+	gl.vertexAttribPointer(textureShader.biTangent, 3, gl.FLOAT, false, 0, 0);
+
 	gl.enableVertexAttribArray(textureShader.position);
 	gl.enableVertexAttribArray(textureShader.texcoord);
 	gl.enableVertexAttribArray(textureShader.normal);
+	gl.enableVertexAttribArray(textureShader.tangent);
+	gl.enableVertexAttribArray(textureShader.biTangent);
 
 	gl.uniformMatrix4fv(textureShader.pMatrix, false, pMatrix);
 	gl.uniformMatrix4fv(textureShader.vMatrix, false, vMatrix);
@@ -22,6 +30,10 @@ function drawModel(model, pMatrix, vMatrix, mMatrix)
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, model.texture);
 	gl.uniform1i(textureShader.diffuse, 0);
+
+	gl.activeTexture(gl.TEXTURE1);
+	gl.bindTexture(gl.TEXTURE_2D, model.normalTex);
+	gl.uniform1i(textureShader.normalTex, 1);
 
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.index_buffer);
 	gl.drawElements(gl.TRIANGLES, model.faceIndices.length, gl.UNSIGNED_SHORT, 0);
@@ -40,6 +52,14 @@ function initModel(model)
 	model.normal_buffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, model.normal_buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model.normals), gl.STATIC_DRAW);
+
+	model.tangent_buffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.tangent_buffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model.tangents), gl.STATIC_DRAW);
+
+	model.biTangent_buffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.biTangent_buffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model.biTangents), gl.STATIC_DRAW);
 
 	model.index_buffer = gl.createBuffer();
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.index_buffer);
@@ -78,12 +98,14 @@ function CubeModel()
 	return this;
 }
 
-function Model(objData, texture)
+function Model(objData, texture, normalTex)
 {
 	this.vertices = [];
 	this.uvs = [];
 	this.normals = [];
 	this.faceIndices = [];
+	this.tangents = [];
+	this.biTangents = [];
 
 	var lines = objData.split("\n");
 	var vertOffset = -1;
@@ -132,13 +154,106 @@ function Model(objData, texture)
 				this.normals.push(rawnormals[3 * (parseInt(vtn[2]) + vertOffset)]);
 				this.normals.push(rawnormals[3 * (parseInt(vtn[2]) + vertOffset) + 1]);
 				this.normals.push(rawnormals[3 * (parseInt(vtn[2]) + vertOffset) + 2]);
+				this.tangents.push(0); this.tangents.push(0); this.tangents.push(0);
+				this.biTangents.push(0); this.biTangents.push(0); this.biTangents.push(0);
 				this.faceIndices.push(currentIndex);
 				currentIndex++;
+			}
+
+			for (j = 3; j < parts.length; j++)
+			{
+				var v0 = [
+					this.vertices[3 * (currentIndex - parts.length + 1)],
+					this.vertices[3 * (currentIndex - parts.length + 1) + 1],
+					this.vertices[3 * (currentIndex - parts.length + 1) + 2]
+				];
+				var v1 = [
+					this.vertices[3 * (currentIndex - parts.length + j - 1)],
+					this.vertices[3 * (currentIndex - parts.length + j - 1) + 1],
+					this.vertices[3 * (currentIndex - parts.length + j - 1) + 2]
+				];
+				var v2 = [
+					this.vertices[3 * (currentIndex - parts.length + j)],
+					this.vertices[3 * (currentIndex - parts.length + j) + 1],
+					this.vertices[3 * (currentIndex - parts.length + j) + 2]
+				];
+
+				var uv0 = [
+					this.uvs[2 * (currentIndex - parts.length + 1)],
+					this.uvs[2 * (currentIndex - parts.length + 1) + 1]
+				];
+				var uv1 = [
+					this.uvs[2 * (currentIndex - parts.length + j - 1)],
+					this.uvs[2 * (currentIndex - parts.length + j - 1) + 1]
+				];
+				var uv2 = [
+					this.uvs[2 * (currentIndex - parts.length + j)],
+					this.uvs[2 * (currentIndex - parts.length + j) + 1]
+				];
+
+				var deltaPos1 = subVectors(v1, v0);
+				var deltaPos2 = subVectors(v2, v0);
+
+				var deltaUV1 = subVectors2(uv1, uv0);
+				var deltaUV2 = subVectors2(uv2, uv0);
+
+				var r = 1 / (deltaUV1[0] * deltaUV2[1] - deltaUV1[1] * deltaUV2[0]);
+				var tangent = scaleVector(r, subVectors(scaleVector(deltaUV1[0], deltaPos2), scaleVector(deltaUV2[0], deltaPos1)));
+				var biTangent = scaleVector(r, subVectors(scaleVector(deltaUV2[0], deltaPos1), scaleVector(deltaUV1[0], deltaPos2)));
+
+				this.tangents[3 * (currentIndex - parts.length + 1)] += tangent[0];
+				this.tangents[3 * (currentIndex - parts.length + 1) + 1] += tangent[1];
+				this.tangents[3 * (currentIndex - parts.length + 1) + 2] += tangent[2];
+				this.biTangents[3 * (currentIndex - parts.length + 1)] += biTangent[0];
+				this.biTangents[3 * (currentIndex - parts.length + 1) + 1] += biTangent[1];
+				this.biTangents[3 * (currentIndex - parts.length + 1) + 2] += biTangent[2];
+
+				this.tangents[3 * (currentIndex - parts.length + j - 1)] += tangent[0];
+				this.tangents[3 * (currentIndex - parts.length + j - 1) + 1] += tangent[1];
+				this.tangents[3 * (currentIndex - parts.length + j - 1) + 2] += tangent[2];
+				this.biTangents[3 * (currentIndex - parts.length + j - 1)] += biTangent[0];
+				this.biTangents[3 * (currentIndex - parts.length + j - 1) + 1] += biTangent[1];
+				this.biTangents[3 * (currentIndex - parts.length + j - 1) + 2] += biTangent[2];
+
+				this.tangents[3 * (currentIndex - parts.length + j)] += tangent[0];
+				this.tangents[3 * (currentIndex - parts.length + j) + 1] += tangent[1];
+				this.tangents[3 * (currentIndex - parts.length + j) + 2] += tangent[2];
+				this.biTangents[3 * (currentIndex - parts.length + j)] += biTangent[0];
+				this.biTangents[3 * (currentIndex - parts.length + j) + 1] += biTangent[1];
+				this.biTangents[3 * (currentIndex - parts.length + j) + 2] += biTangent[2];
+			}
+
+			for (j = 1; j < parts.length; j++)
+			{
+				var curTangent = [
+					this.tangents[3 * (currentIndex - parts.length + j)],
+					this.tangents[3 * (currentIndex - parts.length + j) + 1],
+					this.tangents[3 * (currentIndex - parts.length + j) + 2]
+				];
+				var curBiTangent = [
+					this.biTangents[3 * (currentIndex - parts.length + j)],
+					this.biTangents[3 * (currentIndex - parts.length + j) + 1],
+					this.biTangents[3 * (currentIndex - parts.length + j) + 2]
+				];
+
+				curTangent = normalize(curTangent);
+				curBiTangent = normalize(curBiTangent);
+
+				this.tangents[3 * (currentIndex - parts.length + j)] = curTangent[0];
+				this.tangents[3 * (currentIndex - parts.length + j) + 1] = curTangent[1];
+				this.tangents[3 * (currentIndex - parts.length + j) + 2] = curTangent[2];
+
+				this.biTangents[3 * (currentIndex - parts.length + j)] = curBiTangent[0];
+				this.biTangents[3 * (currentIndex - parts.length + j) + 1] = curBiTangent[1];
+				this.biTangents[3 * (currentIndex - parts.length + j) + 2] = curBiTangent[2];
 			}
 		}
 	}
 
+	console.log(this.tangents);
+
 	this.texture = texture;
+	this.normalTex = normalTex;
 
 	initModel(this);
 

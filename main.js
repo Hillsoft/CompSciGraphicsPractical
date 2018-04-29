@@ -16,7 +16,7 @@ var resources = {
 };
 var stats = {
 	triangles: 0,
-	lights: 1
+	lights: 2
 };
 var frameBuffer;
 var frameBufferTexs = [];
@@ -48,6 +48,9 @@ function graphicsInit(canvasId)
 	});
 
 	gl = canvas.getContext("webgl2");
+
+	gl.enable(gl.CULL_FACE);
+	gl.cullFace(gl.BACK);
 
 	gl.getExtension("EXT_color_buffer_float");
 
@@ -159,13 +162,15 @@ function loadResources(callback)
 		$.ajax("shaders/deferredFragmentShader.glsl"),
 		$.ajax("res/suzanne/suzanne.obj"),
 		loadImage("res/suzanne/ao.png"),
+		loadImage("res/suzanne/normals.png"),
 		$.ajax("res/billboard/billboard.obj"),
 		loadImage("res/billboard/billboard.png"),
 		$.ajax("res/cube/cube.obj"),
 		loadImage("res/cube/cube.png"),
 		$.ajax("res/stonefloor/stonefloor.obj"),
 		loadImage("res/stonefloor/diffuseaoblend.jpg"),
-	).done(function(bvs, bfs, tvs, tfs, dvs, dfs, su, suao, bill, billtex, cube, cubetex, floor, floortex) {
+		loadImage("res/stonefloor/normals.jpg"),
+	).done(function(bvs, bfs, tvs, tfs, dvs, dfs, su, suao, suno, bill, billtex, cube, cubetex, floor, floortex, floornorm) {
 		basicShader = {
 			program: makeProgram(bvs[0], bfs[0])
 		};
@@ -184,9 +189,12 @@ function loadResources(callback)
 		textureShader.vMatrix = gl.getUniformLocation(textureShader.program, "vMatrix");
 		textureShader.mMatrix = gl.getUniformLocation(textureShader.program, "mMatrix");
 		textureShader.diffuse = gl.getUniformLocation(textureShader.program, "diffuseTex");
+		textureShader.normalTex = gl.getUniformLocation(textureShader.program, "normalTex");
 		textureShader.position = gl.getAttribLocation(textureShader.program, "position");
 		textureShader.normal = gl.getAttribLocation(textureShader.program, "normal");
 		textureShader.texcoord = gl.getAttribLocation(textureShader.program, "texcoord");
+		textureShader.tangent = gl.getAttribLocation(textureShader.program, "tangent");
+		textureShader.biTangent = gl.getAttribLocation(textureShader.program, "biTangent");
 
 		deferredShader = {
 			program: makeProgram(dvs[0], dfs[0])
@@ -200,10 +208,10 @@ function loadResources(callback)
 		deferredShader.lightNum = gl.getUniformLocation(deferredShader.program, "numLights");
 		deferredShader.position = gl.getAttribLocation(deferredShader.program, "position");
 
-		resources.suzanne = new Model(su[0], suao);
-		resources.billboard = new Model(bill[0], billtex);
-		resources.cube = new Model(cube[0], cubetex);
-		resources.floor = new Model(floor[0], floortex);
+		resources.suzanne = new Model(su[0], suao, suno);
+		// resources.billboard = new Model(bill[0], billtex);
+		// resources.cube = new Model(cube[0], cubetex);
+		resources.floor = new Model(floor[0], floortex, floornorm);
 
 		callback();
 	});
@@ -238,7 +246,7 @@ function mainLoop(time)
 
 	gl.uniform1i(deferredShader.lightNum, 2);
 
-	gl.uniform3fv(deferredShader.lights, [ -10.0, 10.0, 0.0, 10.0, 10.0, 0.0 ]);
+	gl.uniform3fv(deferredShader.lights, [ -10.0, 10.0, -5.0, 10.0, 10.0, -5.0 ]);
 	gl.uniform3fv(deferredShader.lightColors, [ 20.0, 20.0, 50.0, 100.0, 40.0, 40.0 ]);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, quad.vertices);

@@ -19,7 +19,7 @@ out vec3 vBiTangent;
 void main(void)
 {
 	vPosition = (mMatrix * vec4(position, 1.0)).xyz;
-	gl_Position = pMatrix * vMatrix * mMatrix * vec4(position, 1.0);
+	gl_Position = pMatrix * vMatrix * vec4(vPosition, 1.0);
 	vTexcoord = texcoord;
 	vNormal = (mMatrix * vec4(normal, 0.0)).xyz;
 	vTangent = (mMatrix * vec4(tangent, 0.0)).xyz;

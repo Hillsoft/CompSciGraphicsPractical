@@ -16,7 +16,7 @@ var resources = {
 };
 var stats = {
 	triangles: 0,
-	lights: 2
+	lights: 3
 };
 var frameBuffer;
 var frameBufferTexs = [];
@@ -206,6 +206,7 @@ function loadResources(callback)
 		deferredShader.lights = gl.getUniformLocation(deferredShader.program, "lights");
 		deferredShader.lightColors = gl.getUniformLocation(deferredShader.program, "lightColors");
 		deferredShader.lightNum = gl.getUniformLocation(deferredShader.program, "numLights");
+		deferredShader.cameraPosition = gl.getUniformLocation(deferredShader.program, "cameraPosition");
 		deferredShader.position = gl.getAttribLocation(deferredShader.program, "position");
 
 		resources.suzanne = new Model(su[0], suao, suno);
@@ -244,10 +245,12 @@ function mainLoop(time)
 
 	gl.useProgram(deferredShader.program);
 
-	gl.uniform1i(deferredShader.lightNum, 2);
+	gl.uniform1i(deferredShader.lightNum, 3);
 
-	gl.uniform3fv(deferredShader.lights, [ -10.0, 10.0, -5.0, 10.0, 10.0, -5.0 ]);
-	gl.uniform3fv(deferredShader.lightColors, [ 20.0, 20.0, 50.0, 100.0, 40.0, 40.0 ]);
+	gl.uniform3f(deferredShader.cameraPosition, camera.position[0], camera.position[1], camera.position[2]);
+
+	gl.uniform3fv(deferredShader.lights, [ 8.0, 10.0, -7.0, -10.0, 10.0, -5.0, 10.0, 10.0, -5.0 ]);
+	gl.uniform3fv(deferredShader.lightColors, [ 60.0, 60.0, 60.0, 10.0, 10.0, 25.0, 50.0, 20.0, 20.0 ]);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, quad.vertices);
 	gl.vertexAttribPointer(deferredShader.position, 2, gl.FLOAT, false, 0, 0);

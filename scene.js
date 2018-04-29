@@ -250,8 +250,6 @@ function Model(objData, texture, normalTex)
 		}
 	}
 
-	console.log(this.tangents);
-
 	this.texture = texture;
 	this.normalTex = normalTex;
 

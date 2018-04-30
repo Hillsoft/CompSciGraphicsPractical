@@ -13,6 +13,7 @@ var resources = {
 	billboard: null,
 	cube: null,
 	floor: null,
+	tiles: null,
 };
 var stats = {
 	triangles: 0,
@@ -112,14 +113,14 @@ function graphicsInit(canvasId)
 		new StaticMesh(resources.suzanne, [ 3, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
 
 		new DirectionalLight([ -8, -10, 7 ], [ 0.6, 0.6, 0.65 ]);
-		new PointLight([ -10, -10, 5 ], [ 10, 10, 15 ]);
+		new PointLight([ -10, 10, -5 ], [ 10, 10, 25 ]);
 		new PointLight([ 10, 10, -5 ], [ 50, 20, 20 ]);
 
 		for (var x = -10; x <= 10; x += 2)
 		{
 			for (var y = -10; y <= 10; y += 2)
 			{
-				new StaticMesh(resources.floor, [ x, -1.5, y ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
+				new StaticMesh(resources.tiles, [ x, -1.5, y ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
 			}
 		}
 
@@ -183,7 +184,11 @@ function loadResources(callback)
 		loadImage("res/stonefloor/diffuseaoblend.jpg"),
 		loadImage("res/stonefloor/normals.jpg"),
 		loadImage("res/stonefloor/roughness.jpg"),
-	).done(function(bvs, bfs, tvs, tfs, dvs, dfs, su, suao, suno, surough, bill, billtex, cube, cubetex, floor, floortex, floornorm, floorrough) {
+		$.ajax("res/tiledfloor/tiledfloor.obj"),
+		loadImage("res/tiledfloor/diffuseaoblend.jpg"),
+		loadImage("res/tiledfloor/normals.jpg"),
+		loadImage("res/tiledfloor/roughness.jpg"),
+	).done(function(bvs, bfs, tvs, tfs, dvs, dfs, su, suao, suno, surough, bill, billtex, cube, cubetex, floor, floortex, floornorm, floorrough, tiles, tilestex, tilesnorm, tilesrough) {
 		basicShader = {
 			program: makeProgram(bvs[0], bfs[0])
 		};
@@ -229,6 +234,7 @@ function loadResources(callback)
 		// resources.billboard = new Model(bill[0], billtex);
 		// resources.cube = new Model(cube[0], cubetex);
 		resources.floor = new Model(floor[0], floortex, floornorm, floorrough);
+		resources.tiles = new Model(tiles[0], tilestex, tilesnorm, tilesrough);
 
 		callback();
 	});

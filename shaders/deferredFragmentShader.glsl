@@ -53,7 +53,7 @@ void main(void)
 		lightingValue += curLight * lightColors[i];
 
 		perfectReflection = normalize(2.0 * dot(normalize(relativeLight), normal) * normal - normalize(relativeLight));
-		fragColor += vec4((1.0 - (roughness * 0.85)) * pow(max(0.0, dot(perfectReflection, normalize(cameraPosition - position))), 1.0 / roughness) * lightDist * lightColors[i], 0.0);
+		fragColor += vec4((1.0 - (roughness * 1.0)) * pow(max(0.0, dot(perfectReflection, normalize(cameraPosition - position))), 1.0 / roughness) * lightDist * lightColors[i], 0.0);
 	}
 
 	lightingValue += ambientLight;

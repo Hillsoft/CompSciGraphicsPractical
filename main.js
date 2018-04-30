@@ -140,7 +140,7 @@ function loadImage(src)
 	image.onload = function() {
 		var texture = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.texParameterf(gl.TEXTURE_2D, anisotropicFilter.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+		gl.texParameterf(gl.TEXTURE_2D, anisotropicFilter.TEXTURE_MAX_ANISOTROPY_EXT, 2);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 		gl.generateMipmap(gl.TEXTURE_2D);
 		dfd.resolve(texture);

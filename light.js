@@ -3,38 +3,42 @@ var lightColor = [];
 var lightType = [];
 var lightNum = 0;
 
+function moveLight(light, newPosition)
+{
+	lightPos[3 * light.lightIndex] = newPosition[0];
+	lightPos[3 * light.lightIndex + 1] = newPosition[1];
+	lightPos[3 * light.lightIndex + 2] = newPosition[2];
+}
+
+function setLightColor(light, newColor)
+{
+	lightColor[3 * light.lightIndex] = newColor[0];
+	lightColor[3 * light.lightIndex + 1] = newColor[1];
+	lightColor[3 * light.lightIndex + 2] = newColor[2];
+}
+
 function DirectionalLight(direction, color)
 {
-	var lightIndex = lightNum;
+	this.lightIndex = lightNum;
 	lightNum++;
 
-	lightPos[3 * lightIndex] = direction[0];
-	lightPos[3 * lightIndex + 1] = direction[1];
-	lightPos[3 * lightIndex + 2] = direction[2];
-	lightColor[3 * lightIndex] = color[0];
-	lightColor[3 * lightIndex + 1] = color[1];
-	lightColor[3 * lightIndex + 2] = color[2];
-	lightType[lightIndex] = 0;
+	lightType[this.lightIndex] = 0;
 
-	this.lightIndex = lightIndex;
+	moveLight(this, position);
+	setLightColor(this, color);
 
 	return this;
 }
 
 function PointLight(position, color)
 {
-	var lightIndex = lightNum;
+	this.lightIndex = lightNum;
 	lightNum++;
 
-	lightPos[3 * lightIndex] = position[0];
-	lightPos[3 * lightIndex + 1] = position[1];
-	lightPos[3 * lightIndex + 2] = position[2];
-	lightColor[3 * lightIndex] = color[0];
-	lightColor[3 * lightIndex + 1] = color[1];
-	lightColor[3 * lightIndex + 2] = color[2];
-	lightType[lightIndex] = 1;
+	lightType[this.lightIndex] = 1;
 
-	this.lightIndex = lightIndex;
+	moveLight(this, position);
+	setLightColor(this, color);
 
 	return this;
 }

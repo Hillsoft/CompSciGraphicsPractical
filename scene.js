@@ -184,15 +184,15 @@ function Model(objData, texture, normalTex, roughnessTex)
 
 				var uv0 = [
 					this.uvs[2 * (currentIndex - parts.length + 1)],
-					this.uvs[2 * (currentIndex - parts.length + 1) + 1]
+					1 - this.uvs[2 * (currentIndex - parts.length + 1) + 1]
 				];
 				var uv1 = [
 					this.uvs[2 * (currentIndex - parts.length + j - 1)],
-					this.uvs[2 * (currentIndex - parts.length + j - 1) + 1]
+					1 - this.uvs[2 * (currentIndex - parts.length + j - 1) + 1]
 				];
 				var uv2 = [
 					this.uvs[2 * (currentIndex - parts.length + j)],
-					this.uvs[2 * (currentIndex - parts.length + j) + 1]
+					1 - this.uvs[2 * (currentIndex - parts.length + j) + 1]
 				];
 
 				var deltaPos1 = subVectors(v1, v0);

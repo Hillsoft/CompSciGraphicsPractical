@@ -16,7 +16,6 @@ var resources = {
 };
 var stats = {
 	triangles: 0,
-	lights: 3
 };
 var frameBuffer;
 var frameBufferTexs = [];
@@ -111,6 +110,10 @@ function graphicsInit(canvasId)
 		new StaticMesh(resources.suzanne, [ 0, 0, 0 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
 		new StaticMesh(resources.suzanne, [ -3, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
 		new StaticMesh(resources.suzanne, [ 3, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
+
+		new DirectionalLight([ -8, -10, 7 ], [ 0.6, 0.6, 0.65 ]);
+		new PointLight([ -10, -10, 5 ], [ 10, 10, 15 ]);
+		new PointLight([ 10, 10, -5 ], [ 50, 20, 20 ]);
 
 		for (var x = -10; x <= 10; x += 2)
 		{
@@ -217,6 +220,7 @@ function loadResources(callback)
 		deferredShader.roughnessTex = gl.getUniformLocation(deferredShader.program, "roughnessTex");
 		deferredShader.lights = gl.getUniformLocation(deferredShader.program, "lights");
 		deferredShader.lightColors = gl.getUniformLocation(deferredShader.program, "lightColors");
+		deferredShader.lightTypes = gl.getUniformLocation(deferredShader.program, "lightTypes");
 		deferredShader.lightNum = gl.getUniformLocation(deferredShader.program, "numLights");
 		deferredShader.cameraPosition = gl.getUniformLocation(deferredShader.program, "cameraPosition");
 		deferredShader.position = gl.getAttribLocation(deferredShader.program, "position");
@@ -239,7 +243,7 @@ function mainLoop(time)
 		$("#time").html(dt + "ms");
 		$("#fps").html(1000/dt);
 		$("#tris").html(stats.triangles);
-		$("#lights").html(stats.lights);
+		$("#lights").html(lightNum);
 	}
 
 	var curObject = tickObjects.next;

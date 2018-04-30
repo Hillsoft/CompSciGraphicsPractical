@@ -30,12 +30,13 @@ function drawScene()
 
 	gl.useProgram(deferredShader.program);
 
-	gl.uniform1i(deferredShader.lightNum, 3);
+	gl.uniform1i(deferredShader.lightNum, lightNum);
 
 	gl.uniform3f(deferredShader.cameraPosition, camera.position[0], camera.position[1], camera.position[2]);
 
-	gl.uniform3fv(deferredShader.lights, [ 8.0, 10.0, -7.0, -10.0, 10.0, -5.0, 10.0, 10.0, -5.0 ]);
-	gl.uniform3fv(deferredShader.lightColors, [ 60.0, 60.0, 60.0, 10.0, 10.0, 25.0, 50.0, 20.0, 20.0 ]);
+	gl.uniform3fv(deferredShader.lights, lightPos);
+	gl.uniform3fv(deferredShader.lightColors, lightColor);
+	gl.uniform1iv(deferredShader.lightTypes, lightType);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, quad.vertices);
 	gl.vertexAttribPointer(deferredShader.position, 2, gl.FLOAT, false, 0, 0);

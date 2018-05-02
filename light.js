@@ -24,7 +24,7 @@ function DirectionalLight(direction, color)
 
 	lightType[this.lightIndex] = 0;
 
-	moveLight(this, position);
+	moveLight(this, direction);
 	setLightColor(this, color);
 
 	return this;

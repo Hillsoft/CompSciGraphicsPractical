@@ -37,6 +37,8 @@ void main(void)
 	float lightDist = 1.0;
 	fragColor = vec4(0.0, 0.0, 0.0, 1.0);
 	vec3 perfectReflection = vec3(0.0);
+	float fresnel = 0.0;
+	float ndotl = 0.0;
 	for (int i = 0; i < numLights; i++)
 	{
 		if (lightTypes[i] == 0)
@@ -49,11 +51,17 @@ void main(void)
 			relativeLight = lights[i] - position;
 			lightDist = 1.0 / dot(relativeLight, relativeLight);
 		}
-		curLight = max(0.0, dot(normal, normalize(relativeLight)) * lightDist);
-		lightingValue += curLight * lightColors[i];
+		relativeLight = normalize(relativeLight);
+		ndotl = dot(normal, relativeLight);
 
-		perfectReflection = normalize(2.0 * dot(normalize(relativeLight), normal) * normal - normalize(relativeLight));
-		fragColor += vec4((1.0 - (roughness * 1.0)) * pow(max(0.0, dot(perfectReflection, normalize(cameraPosition - position))), 1.0 / roughness) * lightDist * lightColors[i], 0.0);
+		fresnel = max(0.0, ndotl) - 0.5;
+		fresnel = 0.5 + fresnel * fresnel * fresnel;
+
+		curLight = max(0.0, ndotl * lightDist);
+		lightingValue += fresnel * curLight * lightColors[i];
+
+		perfectReflection = normalize(2.0 * ndotl * normal - relativeLight);
+		fragColor += vec4((1.0 - fresnel) * (1.0 - (roughness * 1.0)) * pow(max(0.0, dot(perfectReflection, normalize(cameraPosition - position))), 1.0 / roughness) * lightDist * lightColors[i], 0.0);
 	}
 
 	lightingValue += ambientLight;

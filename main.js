@@ -248,13 +248,6 @@ function mainLoop(time)
 {
 	var dt = time - oldTime;
 	oldTime = time;
-	if (!mouseLocked)
-	{
-		$("#time").html(dt + "ms");
-		$("#fps").html(1000/dt);
-		$("#tris").html(stats.triangles);
-		$("#lights").html(lightNum);
-	}
 
 	var curObject = tickObjects.next;
 	while (curObject != null)
@@ -267,5 +260,18 @@ function mainLoop(time)
 
 	drawScene();
 
+	if (!mouseLocked)
+	{
+		updateStats((performance.now() - time).toFixed(0), (1000/dt).toFixed(0));
+	}
+
 	window.requestAnimationFrame(mainLoop);
+}
+
+async function updateStats(time, fps)
+{
+	$("#time").html(time + "ms");
+	$("#fps").html(fps);
+	$("#tris").html(stats.triangles);
+	$("#lights").html(lightNum);
 }

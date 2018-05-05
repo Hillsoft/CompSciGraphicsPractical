@@ -266,7 +266,7 @@ function loadResources(callback)
 
 		resources.suzanneMat = new DiffuseMaterial(suao, 0.0);
 		resources.suzanne = new Model(su[0], resources.suzanneMat);
-		resources.floorMat = new DiffuseNormalRoughnessPOMMaterial(floortex, floornorm, floorrough, floordisplacement, 0.009, 16);
+		resources.floorMat = new DiffuseNormalRoughnessPOMMaterial(floortex, floornorm, floorrough, floordisplacement, 0.009, 8);
 		resources.floor = new Model(floor[0], resources.floorMat);
 		resources.tilesMat = new DiffuseNormalRoughnessPOMMaterial(tilestex, tilesnorm, tilesrough, tilesdisplacement, 0.05, 8);
 		resources.tiles = new Model(tiles[0], resources.tilesMat);

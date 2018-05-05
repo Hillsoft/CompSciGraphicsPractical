@@ -1,7 +1,7 @@
 var canvas = null;
 var gl = null;
-var basicShader = null;
-var textureShader = null;
+var meshDShader = null;
+var meshDNRShader = null;
 var deferredShader = null;
 var camera = null;
 var tickObjects = {
@@ -10,11 +10,13 @@ var tickObjects = {
 var oldTime = 0;
 var resources = {
 	suzanne: null,
-	billboard: null,
-	cube: null,
+	suzanneMat: null,
 	floor: null,
+	floorMat: null,
 	tiles: null,
+	tilesMat: null,
 	metalplate: null,
+	metalplateMat: null,
 };
 var stats = {
 	triangles: 0,
@@ -178,20 +180,14 @@ function makeProgram(vertexCode, fragmentCode)
 function loadResources(callback)
 {
 	$.when(
-		$.ajax("shaders/basicVertexShader.glsl"),
-		$.ajax("shaders/basicFragmentShader.glsl"),
-		$.ajax("shaders/textureVertexShader.glsl"),
-		$.ajax("shaders/textureFragmentShader.glsl"),
+		$.ajax("shaders/mesh_D_VertexShader.glsl"),
+		$.ajax("shaders/mesh_D_FragmentShader.glsl"),
+		$.ajax("shaders/mesh_DNR_VertexShader.glsl"),
+		$.ajax("shaders/mesh_DNR_FragmentShader.glsl"),
 		$.ajax("shaders/deferredVertexShader.glsl"),
 		$.ajax("shaders/deferredFragmentShader.glsl"),
 		$.ajax("res/suzanne/suzanne.obj"),
 		loadImage("res/suzanne/ao.png"),
-		loadImage("res/suzanne/normals.png"),
-		loadImage("res/suzanne/roughness.png"),
-		$.ajax("res/billboard/billboard.obj"),
-		loadImage("res/billboard/billboard.png"),
-		$.ajax("res/cube/cube.obj"),
-		loadImage("res/cube/cube.png"),
 		$.ajax("res/stonefloor/stonefloor.obj"),
 		loadImage("res/stonefloor/diffuseaoblend.jpg"),
 		loadImage("res/stonefloor/normals.jpg"),
@@ -204,32 +200,35 @@ function loadResources(callback)
 		loadImage("res/metalplate/diffuseaoblend.jpg"),
 		loadImage("res/metalplate/normals.jpg"),
 		loadImage("res/metalplate/roughnessorig.jpg"),
-	).done(function(bvs, bfs, tvs, tfs, dvs, dfs, su, suao, suno, surough, bill, billtex, cube, cubetex, floor, floortex, floornorm, floorrough, tiles, tilestex, tilesnorm, tilesrough, metal, metaltex, metalnorm, metalrough) {
-		basicShader = {
-			program: makeProgram(bvs[0], bfs[0])
+	).done(function(mdvs, mdfs, mdnrvs, mdnrfs, dvs, dfs, su, suao, floor, floortex, floornorm, floorrough, tiles, tilestex, tilesnorm, tilesrough, metal, metaltex, metalnorm, metalrough) {
+		meshDShader = {
+			program: makeProgram(mdvs[0], mdfs[0]),
 		};
 
-		basicShader.pMatrix = gl.getUniformLocation(basicShader.program, "pMatrix");
-		basicShader.vMatrix = gl.getUniformLocation(basicShader.program, "vMatrix");
-		basicShader.mMatrix = gl.getUniformLocation(basicShader.program, "mMatrix");
-		basicShader.position = gl.getAttribLocation(basicShader.program, "position");
-		basicShader.color = gl.getAttribLocation(basicShader.program, "color");
+		meshDShader.pMatrix = gl.getUniformLocation(meshDShader.program, "pMatrix");
+		meshDShader.vMatrix = gl.getUniformLocation(meshDShader.program, "vMatrix");
+		meshDShader.mMatrix = gl.getUniformLocation(meshDShader.program, "mMatrix");
+		meshDShader.diffuse = gl.getUniformLocation(meshDShader.program, "diffuseTex");
+		meshDShader.roughness = gl.getUniformLocation(meshDShader.program, "roughness");
+		meshDShader.position = gl.getAttribLocation(meshDShader.program, "position");
+		meshDShader.normal = gl.getAttribLocation(meshDShader.program, "normal");
+		meshDShader.texcoord = gl.getAttribLocation(meshDShader.program, "texCoord");
 
-		textureShader = {
-			program: makeProgram(tvs[0], tfs[0])
+		meshDNRShader = {
+			program: makeProgram(mdnrvs[0], mdnrfs[0])
 		};
 
-		textureShader.pMatrix = gl.getUniformLocation(textureShader.program, "pMatrix");
-		textureShader.vMatrix = gl.getUniformLocation(textureShader.program, "vMatrix");
-		textureShader.mMatrix = gl.getUniformLocation(textureShader.program, "mMatrix");
-		textureShader.diffuse = gl.getUniformLocation(textureShader.program, "diffuseTex");
-		textureShader.normalTex = gl.getUniformLocation(textureShader.program, "normalTex");
-		textureShader.roughnessTex = gl.getUniformLocation(textureShader.program, "roughnessTex");
-		textureShader.position = gl.getAttribLocation(textureShader.program, "position");
-		textureShader.normal = gl.getAttribLocation(textureShader.program, "normal");
-		textureShader.texcoord = gl.getAttribLocation(textureShader.program, "texcoord");
-		textureShader.tangent = gl.getAttribLocation(textureShader.program, "tangent");
-		textureShader.biTangent = gl.getAttribLocation(textureShader.program, "biTangent");
+		meshDNRShader.pMatrix = gl.getUniformLocation(meshDNRShader.program, "pMatrix");
+		meshDNRShader.vMatrix = gl.getUniformLocation(meshDNRShader.program, "vMatrix");
+		meshDNRShader.mMatrix = gl.getUniformLocation(meshDNRShader.program, "mMatrix");
+		meshDNRShader.diffuse = gl.getUniformLocation(meshDNRShader.program, "diffuseTex");
+		meshDNRShader.normalTex = gl.getUniformLocation(meshDNRShader.program, "normalTex");
+		meshDNRShader.roughnessTex = gl.getUniformLocation(meshDNRShader.program, "roughnessTex");
+		meshDNRShader.position = gl.getAttribLocation(meshDNRShader.program, "position");
+		meshDNRShader.normal = gl.getAttribLocation(meshDNRShader.program, "normal");
+		meshDNRShader.texcoord = gl.getAttribLocation(meshDNRShader.program, "texcoord");
+		meshDNRShader.tangent = gl.getAttribLocation(meshDNRShader.program, "tangent");
+		meshDNRShader.biTangent = gl.getAttribLocation(meshDNRShader.program, "biTangent");
 
 		deferredShader = {
 			program: makeProgram(dvs[0], dfs[0])
@@ -246,12 +245,14 @@ function loadResources(callback)
 		deferredShader.cameraPosition = gl.getUniformLocation(deferredShader.program, "cameraPosition");
 		deferredShader.position = gl.getAttribLocation(deferredShader.program, "position");
 
-		resources.suzanne = new Model(su[0], suao, suno, surough);
-		// resources.billboard = new Model(bill[0], billtex);
-		// resources.cube = new Model(cube[0], cubetex);
-		resources.floor = new Model(floor[0], floortex, floornorm, floorrough);
-		resources.tiles = new Model(tiles[0], tilestex, tilesnorm, tilesrough);
-		resources.metalplate = new Model(metal[0], metaltex, metalnorm, metalrough);
+		resources.suzanneMat = new DiffuseMaterial(suao, 0.0);
+		resources.suzanne = new Model(su[0], resources.suzanneMat);
+		resources.floorMat = new DiffuseNormalRoughnessMaterial(floortex, floornorm, floorrough);
+		resources.floor = new Model(floor[0], resources.floorMat);
+		resources.tilesMat = new DiffuseNormalRoughnessMaterial(tilestex, tilesnorm, tilesrough);
+		resources.tiles = new Model(tiles[0], resources.tilesMat);
+		resources.metalplateMat = new DiffuseNormalRoughnessMaterial(metaltex, metalnorm, metalrough);
+		resources.metalplate = new Model(metal[0], resources.metalplateMat);
 
 		callback();
 	});

@@ -1,43 +1,33 @@
 function drawModel(model, pMatrix, vMatrix, mMatrix)
 {
-	gl.useProgram(textureShader.program);
+	var shader = model.material.prepareShader();
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, model.vertex_buffer);
-	gl.vertexAttribPointer(textureShader.position, 3, gl.FLOAT, false, 0, 0);
+	gl.vertexAttribPointer(shader.position, 3, gl.FLOAT, false, 0, 0);
+	gl.enableVertexAttribArray(shader.position);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, model.uv_buffer);
-	gl.vertexAttribPointer(textureShader.texcoord, 2, gl.FLOAT, false, 0, 0);
+	gl.vertexAttribPointer(shader.texcoord, 2, gl.FLOAT, false, 0, 0);
+	gl.enableVertexAttribArray(shader.texcoord);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, model.normal_buffer);
-	gl.vertexAttribPointer(textureShader.normal, 3, gl.FLOAT, false, 0, 0);
+	gl.vertexAttribPointer(shader.normal, 3, gl.FLOAT, false, 0, 0);
+	gl.enableVertexAttribArray(shader.normal);
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, model.tangent_buffer);
-	gl.vertexAttribPointer(textureShader.tangent, 3, gl.FLOAT, false, 0, 0);
+	if (typeof(shader.tangent) !== "undefined")
+	{
+		gl.bindBuffer(gl.ARRAY_BUFFER, model.tangent_buffer);
+		gl.vertexAttribPointer(shader.tangent, 3, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(shader.tangent);
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, model.biTangent_buffer);
-	gl.vertexAttribPointer(textureShader.biTangent, 3, gl.FLOAT, false, 0, 0);
+		gl.bindBuffer(gl.ARRAY_BUFFER, model.biTangent_buffer);
+		gl.vertexAttribPointer(shader.biTangent, 3, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(shader.biTangent);
+	}
 
-	gl.enableVertexAttribArray(textureShader.position);
-	gl.enableVertexAttribArray(textureShader.texcoord);
-	gl.enableVertexAttribArray(textureShader.normal);
-	gl.enableVertexAttribArray(textureShader.tangent);
-	gl.enableVertexAttribArray(textureShader.biTangent);
-
-	gl.uniformMatrix4fv(textureShader.pMatrix, false, pMatrix);
-	gl.uniformMatrix4fv(textureShader.vMatrix, false, vMatrix);
-	gl.uniformMatrix4fv(textureShader.mMatrix, false, mMatrix);
-
-	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, model.texture);
-	gl.uniform1i(textureShader.diffuse, 0);
-
-	gl.activeTexture(gl.TEXTURE1);
-	gl.bindTexture(gl.TEXTURE_2D, model.normalTex);
-	gl.uniform1i(textureShader.normalTex, 1);
-
-	gl.activeTexture(gl.TEXTURE2);
-	gl.bindTexture(gl.TEXTURE_2D, model.roughnessTex);
-	gl.uniform1i(textureShader.roughnessTex, 2);
+	gl.uniformMatrix4fv(shader.pMatrix, false, pMatrix);
+	gl.uniformMatrix4fv(shader.vMatrix, false, vMatrix);
+	gl.uniformMatrix4fv(shader.mMatrix, false, mMatrix);
 
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.index_buffer);
 	gl.drawElements(gl.TRIANGLES, model.faceIndices.length, gl.UNSIGNED_SHORT, 0);
@@ -70,39 +60,7 @@ function initModel(model)
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(model.faceIndices), gl.STATIC_DRAW);
 }
 
-function CubeModel()
-{
-	this.vertices = [
-		-1,-1,-1, 1,-1,-1, 1, 1,-1, -1, 1,-1,
-		-1,-1, 1, 1,-1, 1, 1, 1, 1, -1, 1, 1,
-		-1,-1,-1, -1, 1,-1, -1, 1, 1, -1,-1, 1,
-		1,-1,-1, 1, 1,-1, 1, 1, 1, 1,-1, 1,
-		-1,-1,-1, -1,-1, 1, 1,-1, 1, 1,-1,-1,
-		-1, 1,-1, -1, 1, 1, 1, 1, 1, 1, 1,-1
-	];
-
-	this.colors = [
-		5,3,7, 5,3,7, 5,3,7, 5,3,7,
-		1,1,3, 1,1,3, 1,1,3, 1,1,3,
-		0,0,1, 0,0,1, 0,0,1, 0,0,1,
-		1,0,0, 1,0,0, 1,0,0, 1,0,0,
-		1,1,0, 1,1,0, 1,1,0, 1,1,0,
-		0,1,0, 0,1,0, 0,1,0, 0,1,0
-	];
-
-	this.faceIndices = [
-		0,1,2, 0,2,3, 4,5,6, 4,6,7,
-		8,9,10, 8,10,11, 12,13,14, 12,14,15,
-		16,17,18, 16,18,19, 20,21,22, 20,22,23
-	];
-
-	initModel(this);
-	registerDrawObject(this);
-
-	return this;
-}
-
-function Model(objData, texture, normalTex, roughnessTex)
+function Model(objData, material)
 {
 	this.vertices = [];
 	this.uvs = [];
@@ -183,16 +141,16 @@ function Model(objData, texture, normalTex, roughnessTex)
 				];
 
 				var uv0 = [
-					1 - this.uvs[2 * (currentIndex - parts.length + 1)],
-					this.uvs[2 * (currentIndex - parts.length + 1) + 1]
+					this.uvs[2 * (currentIndex - parts.length + 1)],
+					1 - this.uvs[2 * (currentIndex - parts.length + 1) + 1]
 				];
 				var uv1 = [
-					1 - this.uvs[2 * (currentIndex - parts.length + j - 1)],
-					this.uvs[2 * (currentIndex - parts.length + j - 1) + 1]
+					this.uvs[2 * (currentIndex - parts.length + j - 1)],
+					1 - this.uvs[2 * (currentIndex - parts.length + j - 1) + 1]
 				];
 				var uv2 = [
-					1 - this.uvs[2 * (currentIndex - parts.length + j)],
-					this.uvs[2 * (currentIndex - parts.length + j) + 1]
+					this.uvs[2 * (currentIndex - parts.length + j)],
+					1 - this.uvs[2 * (currentIndex - parts.length + j) + 1]
 				];
 
 				var deltaPos1 = subVectors(v1, v0);
@@ -254,9 +212,7 @@ function Model(objData, texture, normalTex, roughnessTex)
 		}
 	}
 
-	this.texture = texture;
-	this.normalTex = normalTex;
-	this.roughnessTex = roughnessTex;
+	this.material = material;
 
 	initModel(this);
 

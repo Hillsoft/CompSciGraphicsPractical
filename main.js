@@ -14,6 +14,7 @@ var resources = {
 	cube: null,
 	floor: null,
 	tiles: null,
+	metalplate: null,
 };
 var stats = {
 	triangles: 0,
@@ -111,9 +112,16 @@ function graphicsInit(canvasId)
 	loadResources(function() {
 		camera = new FPSCamera(50, canvas.width / canvas.height, 1, 100);
 
-		new StaticMesh(resources.suzanne, [ 0, 0, 0 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
+		new StaticMesh(resources.suzanne, [ 0, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
 		new StaticMesh(resources.suzanne, [ -3, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
 		new StaticMesh(resources.suzanne, [ 3, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
+		new StaticMesh(resources.suzanne, [ -6, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
+		new StaticMesh(resources.suzanne, [ 6, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
+		new StaticMesh(resources.suzanne, [ 0, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
+		new StaticMesh(resources.suzanne, [ -3, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
+		new StaticMesh(resources.suzanne, [ 3, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
+		new StaticMesh(resources.suzanne, [ -6, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
+		new StaticMesh(resources.suzanne, [ 6, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
 
 		new DirectionalLight([ -8, -10, 7 ], [ 0.6, 0.6, 0.65 ]);
 		new PointLight([ -10, 10, -5 ], [ 10, 10, 25 ]);
@@ -123,7 +131,7 @@ function graphicsInit(canvasId)
 		{
 			for (var y = -10; y <= 10; y += 2)
 			{
-				new StaticMesh(resources.tiles, [ x, -1.5, y ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
+				new StaticMesh(resources.metalplate, [ 1.5 * x, -1.5, 1.5 * y ], [ 0, 0, 1 ], [ 0, 1, 0 ], 1.5);
 			}
 		}
 
@@ -192,7 +200,11 @@ function loadResources(callback)
 		loadImage("res/tiledfloor/diffuseaoblend.jpg"),
 		loadImage("res/tiledfloor/normals.jpg"),
 		loadImage("res/tiledfloor/roughness.jpg"),
-	).done(function(bvs, bfs, tvs, tfs, dvs, dfs, su, suao, suno, surough, bill, billtex, cube, cubetex, floor, floortex, floornorm, floorrough, tiles, tilestex, tilesnorm, tilesrough) {
+		$.ajax("res/metalplate/metalplate.obj"),
+		loadImage("res/metalplate/diffuseaoblend.jpg"),
+		loadImage("res/metalplate/normals.jpg"),
+		loadImage("res/metalplate/roughnessorig.jpg"),
+	).done(function(bvs, bfs, tvs, tfs, dvs, dfs, su, suao, suno, surough, bill, billtex, cube, cubetex, floor, floortex, floornorm, floorrough, tiles, tilestex, tilesnorm, tilesrough, metal, metaltex, metalnorm, metalrough) {
 		basicShader = {
 			program: makeProgram(bvs[0], bfs[0])
 		};
@@ -239,6 +251,7 @@ function loadResources(callback)
 		// resources.cube = new Model(cube[0], cubetex);
 		resources.floor = new Model(floor[0], floortex, floornorm, floorrough);
 		resources.tiles = new Model(tiles[0], tilestex, tilesnorm, tilesrough);
+		resources.metalplate = new Model(metal[0], metaltex, metalnorm, metalrough);
 
 		callback();
 	});

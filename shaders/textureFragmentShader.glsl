@@ -17,7 +17,7 @@ void main(void)
 {
 	vec4 normalMap = 2.0 * texture(normalTex, vTexcoord) - vec4(1.0);
 	fragColor[0] = texture(diffuseTex, vTexcoord);
-	fragColor[1] = vec4(normalMap.r * vTangent + normalMap.g * vBiTangent + normalMap.b * vNormal, 1.0);
+	fragColor[1] = vec4(normalize(normalMap.r * vTangent + normalMap.g * vBiTangent + normalMap.b * vNormal), 1.0);
 	fragColor[2] = vec4(vPosition, 1.0);
 	fragColor[3] = vec4(clamp(texture(roughnessTex, vTexcoord).x, 0.01, 1.0));
 }

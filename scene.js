@@ -183,16 +183,16 @@ function Model(objData, texture, normalTex, roughnessTex)
 				];
 
 				var uv0 = [
-					this.uvs[2 * (currentIndex - parts.length + 1)],
-					1 - this.uvs[2 * (currentIndex - parts.length + 1) + 1]
+					1 - this.uvs[2 * (currentIndex - parts.length + 1)],
+					this.uvs[2 * (currentIndex - parts.length + 1) + 1]
 				];
 				var uv1 = [
-					this.uvs[2 * (currentIndex - parts.length + j - 1)],
-					1 - this.uvs[2 * (currentIndex - parts.length + j - 1) + 1]
+					1 - this.uvs[2 * (currentIndex - parts.length + j - 1)],
+					this.uvs[2 * (currentIndex - parts.length + j - 1) + 1]
 				];
 				var uv2 = [
-					this.uvs[2 * (currentIndex - parts.length + j)],
-					1 - this.uvs[2 * (currentIndex - parts.length + j) + 1]
+					1 - this.uvs[2 * (currentIndex - parts.length + j)],
+					this.uvs[2 * (currentIndex - parts.length + j) + 1]
 				];
 
 				var deltaPos1 = subVectors(v1, v0);
@@ -202,8 +202,8 @@ function Model(objData, texture, normalTex, roughnessTex)
 				var deltaUV2 = subVectors2(uv2, uv0);
 
 				var r = 1 / (deltaUV1[0] * deltaUV2[1] - deltaUV1[1] * deltaUV2[0]);
-				var tangent = scaleVector(r, subVectors(scaleVector(deltaUV1[0], deltaPos2), scaleVector(deltaUV2[0], deltaPos1)));
-				var biTangent = scaleVector(r, subVectors(scaleVector(deltaUV2[0], deltaPos1), scaleVector(deltaUV1[0], deltaPos2)));
+				var tangent = scaleVector(r, subVectors(scaleVector(deltaUV2[1], deltaPos1), scaleVector(deltaUV1[1], deltaPos2)));
+				var biTangent = scaleVector(r, subVectors(scaleVector(deltaUV1[0], deltaPos2), scaleVector(deltaUV2[0], deltaPos1)));
 
 				this.tangents[3 * (currentIndex - parts.length + 1)] += tangent[0];
 				this.tangents[3 * (currentIndex - parts.length + 1) + 1] += tangent[1];
@@ -263,7 +263,7 @@ function Model(objData, texture, normalTex, roughnessTex)
 	return this;
 }
 
-function StaticMesh(model, position, facing, up)
+function StaticMesh(model, position, facing, up, scale = 1)
 {
 	this.draw = function(pMatrix, vMatrix)
 	{
@@ -277,9 +277,9 @@ function StaticMesh(model, position, facing, up)
 	var yAxis = cross(zAxis, xAxis);
  
 	this.mMatrix = [
-		xAxis[0], xAxis[1], xAxis[2], 0,
-		yAxis[0], yAxis[1], yAxis[2], 0,
-		zAxis[0], zAxis[1], zAxis[2], 0,
+		scale * xAxis[0], xAxis[1], xAxis[2], 0,
+		yAxis[0], scale * yAxis[1], yAxis[2], 0,
+		zAxis[0], zAxis[1], scale * zAxis[2], 0,
 		position[0],
 		position[1],
 		position[2],

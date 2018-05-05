@@ -41,21 +41,23 @@ function drawScene()
 	gl.bindBuffer(gl.ARRAY_BUFFER, quad.vertices);
 	gl.vertexAttribPointer(deferredShader.position, 2, gl.FLOAT, false, 0, 0);
 
-	gl.activeTexture(gl.TEXTURE0);
+	gl.enableVertexAttribArray(deferredShader.position);
+
+	gl.activeTexture(gl.TEXTURE7);
 	gl.bindTexture(gl.TEXTURE_2D, frameBufferTexs[0]);
-	gl.uniform1i(deferredShader.diffuseTex, 0);
+	gl.uniform1i(deferredShader.diffuseTex, 7);
 
-	gl.activeTexture(gl.TEXTURE1);
+	gl.activeTexture(gl.TEXTURE6);
 	gl.bindTexture(gl.TEXTURE_2D, frameBufferTexs[1]);
-	gl.uniform1i(deferredShader.normalTex, 1);
+	gl.uniform1i(deferredShader.normalTex, 6);
 
-	gl.activeTexture(gl.TEXTURE2);
+	gl.activeTexture(gl.TEXTURE5);
 	gl.bindTexture(gl.TEXTURE_2D, frameBufferTexs[2]);
-	gl.uniform1i(deferredShader.positionTex, 2);
+	gl.uniform1i(deferredShader.positionTex, 5);
 
-	gl.activeTexture(gl.TEXTURE3);
+	gl.activeTexture(gl.TEXTURE4);
 	gl.bindTexture(gl.TEXTURE_2D, frameBufferTexs[3]);
-	gl.uniform1i(deferredShader.roughnessTex, 3);
+	gl.uniform1i(deferredShader.roughnessTex, 4);
 
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
 }

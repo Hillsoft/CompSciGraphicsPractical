@@ -2,6 +2,7 @@ var canvas = null;
 var gl = null;
 var meshDShader = null;
 var meshDNRShader = null;
+var meshDNRPOMShader = null;
 var deferredShader = null;
 var camera = null;
 var tickObjects = {
@@ -15,8 +16,6 @@ var resources = {
 	floorMat: null,
 	tiles: null,
 	tilesMat: null,
-	metalplate: null,
-	metalplateMat: null,
 };
 var stats = {
 	triangles: 0,
@@ -133,7 +132,7 @@ function graphicsInit(canvasId)
 		{
 			for (var y = -10; y <= 10; y += 2)
 			{
-				new StaticMesh(resources.metalplate, [ 1.5 * x, -1.5, 1.5 * y ], [ 0, 0, 1 ], [ 0, 1, 0 ], 1.5);
+				new StaticMesh(resources.floor, [ 1.5 * x, -1.5, 1.5 * y ], [ 0, 0, 1 ], [ 0, 1, 0 ], 1.5);
 			}
 		}
 
@@ -150,7 +149,7 @@ function loadImage(src)
 	image.onload = function() {
 		var texture = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.texParameterf(gl.TEXTURE_2D, anisotropicFilter.TEXTURE_MAX_ANISOTROPY_EXT, 2);
+		gl.texParameterf(gl.TEXTURE_2D, anisotropicFilter.TEXTURE_MAX_ANISOTROPY_EXT, 4);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 		gl.generateMipmap(gl.TEXTURE_2D);
 		dfd.resolve(texture);
@@ -184,6 +183,8 @@ function loadResources(callback)
 		$.ajax("shaders/mesh_D_FragmentShader.glsl"),
 		$.ajax("shaders/mesh_DNR_VertexShader.glsl"),
 		$.ajax("shaders/mesh_DNR_FragmentShader.glsl"),
+		$.ajax("shaders/mesh_DNRPOM_VertexShader.glsl"),
+		$.ajax("shaders/mesh_DNRPOM_FragmentShader.glsl"),
 		$.ajax("shaders/deferredVertexShader.glsl"),
 		$.ajax("shaders/deferredFragmentShader.glsl"),
 		$.ajax("res/suzanne/suzanne.obj"),
@@ -192,15 +193,13 @@ function loadResources(callback)
 		loadImage("res/stonefloor/diffuseaoblend.jpg"),
 		loadImage("res/stonefloor/normals.jpg"),
 		loadImage("res/stonefloor/roughness.jpg"),
+		loadImage("res/stonefloor/displacement.png"),
 		$.ajax("res/tiledfloor/tiledfloor.obj"),
 		loadImage("res/tiledfloor/diffuseaoblend.jpg"),
 		loadImage("res/tiledfloor/normals.jpg"),
 		loadImage("res/tiledfloor/roughness.jpg"),
-		$.ajax("res/metalplate/metalplate.obj"),
-		loadImage("res/metalplate/diffuseaoblend.jpg"),
-		loadImage("res/metalplate/normals.jpg"),
-		loadImage("res/metalplate/roughnessorig.jpg"),
-	).done(function(mdvs, mdfs, mdnrvs, mdnrfs, dvs, dfs, su, suao, floor, floortex, floornorm, floorrough, tiles, tilestex, tilesnorm, tilesrough, metal, metaltex, metalnorm, metalrough) {
+		loadImage("res/tiledfloor/displacement.png"),
+	).done(function(mdvs, mdfs, mdnrvs, mdnrfs, dnrpomvs, dnrpomfs, dvs, dfs, su, suao, floor, floortex, floornorm, floorrough, floordisplacement, tiles, tilestex, tilesnorm, tilesrough, tilesdisplacement) {
 		meshDShader = {
 			program: makeProgram(mdvs[0], mdfs[0]),
 		};
@@ -230,6 +229,26 @@ function loadResources(callback)
 		meshDNRShader.tangent = gl.getAttribLocation(meshDNRShader.program, "tangent");
 		meshDNRShader.biTangent = gl.getAttribLocation(meshDNRShader.program, "biTangent");
 
+		meshDNRPOMShader = {
+			program: makeProgram(dnrpomvs[0], dnrpomfs[0])
+		};
+
+		meshDNRPOMShader.pMatrix = gl.getUniformLocation(meshDNRPOMShader.program, "pMatrix");
+		meshDNRPOMShader.vMatrix = gl.getUniformLocation(meshDNRPOMShader.program, "vMatrix");
+		meshDNRPOMShader.mMatrix = gl.getUniformLocation(meshDNRPOMShader.program, "mMatrix");
+		meshDNRPOMShader.camera = gl.getUniformLocation(meshDNRPOMShader.program, "cameraPos");
+		meshDNRPOMShader.depthScale = gl.getUniformLocation(meshDNRPOMShader.program, "depthScale");
+		meshDNRPOMShader.numLayers = gl.getUniformLocation(meshDNRPOMShader.program, "numLayers");
+		meshDNRPOMShader.diffuse = gl.getUniformLocation(meshDNRPOMShader.program, "diffuseTex");
+		meshDNRPOMShader.normalTex = gl.getUniformLocation(meshDNRPOMShader.program, "normalTex");
+		meshDNRPOMShader.roughnessTex = gl.getUniformLocation(meshDNRPOMShader.program, "roughnessTex");
+		meshDNRPOMShader.displacementTex = gl.getUniformLocation(meshDNRPOMShader.program, "displacementTex");
+		meshDNRPOMShader.position = gl.getAttribLocation(meshDNRPOMShader.program, "position");
+		meshDNRPOMShader.normal = gl.getAttribLocation(meshDNRPOMShader.program, "normal");
+		meshDNRPOMShader.texcoord = gl.getAttribLocation(meshDNRPOMShader.program, "texcoord");
+		meshDNRPOMShader.tangent = gl.getAttribLocation(meshDNRPOMShader.program, "tangent");
+		meshDNRPOMShader.biTangent = gl.getAttribLocation(meshDNRPOMShader.program, "biTangent");
+
 		deferredShader = {
 			program: makeProgram(dvs[0], dfs[0])
 		};
@@ -247,12 +266,10 @@ function loadResources(callback)
 
 		resources.suzanneMat = new DiffuseMaterial(suao, 0.0);
 		resources.suzanne = new Model(su[0], resources.suzanneMat);
-		resources.floorMat = new DiffuseNormalRoughnessMaterial(floortex, floornorm, floorrough);
+		resources.floorMat = new DiffuseNormalRoughnessPOMMaterial(floortex, floornorm, floorrough, floordisplacement, 0.008, 8);
 		resources.floor = new Model(floor[0], resources.floorMat);
-		resources.tilesMat = new DiffuseNormalRoughnessMaterial(tilestex, tilesnorm, tilesrough);
+		resources.tilesMat = new DiffuseNormalRoughnessPOMMaterial(tilestex, tilesnorm, tilesrough, tilesdisplacement, 0.05, 8);
 		resources.tiles = new Model(tiles[0], resources.tilesMat);
-		resources.metalplateMat = new DiffuseNormalRoughnessMaterial(metaltex, metalnorm, metalrough);
-		resources.metalplate = new Model(metal[0], resources.metalplateMat);
 
 		callback();
 	});

@@ -119,7 +119,7 @@ function FPSCamera(angle, a, zMin, zMax)
 	this.a = a;
 	this.zMin = zMin;
 	this.zMax = zMax;
-	this.position = [ 0, 0, -6 ];
+	this.position = [ 0, 1.7, -6 ];
 	this.up = [ 0, 1, 0 ];
 	this.xAngle = Math.PI / 2;
 	this.yAngle = 0;

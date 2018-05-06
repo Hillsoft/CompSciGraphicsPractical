@@ -18,6 +18,10 @@ var resources = {
 	tilesMat: null,
 	pebbles: null,
 	pebblesMat: null,
+	damagedwall: null,
+	damagedwallMat: null,
+	plaster: null,
+	plasterMat: null,
 };
 var stats = {
 	triangles: 0,
@@ -115,28 +119,30 @@ function graphicsInit(canvasId)
 	loadResources(function() {
 		camera = new FPSCamera(50, canvas.width / canvas.height, 1, 100);
 
-		new StaticMesh(resources.suzanne, [ 0, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
-		new StaticMesh(resources.suzanne, [ -3, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
-		new StaticMesh(resources.suzanne, [ 3, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
-		new StaticMesh(resources.suzanne, [ -6, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
-		new StaticMesh(resources.suzanne, [ 6, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
-		new StaticMesh(resources.suzanne, [ 0, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
-		new StaticMesh(resources.suzanne, [ -3, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
-		new StaticMesh(resources.suzanne, [ 3, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
-		new StaticMesh(resources.suzanne, [ -6, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
-		new StaticMesh(resources.suzanne, [ 6, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
+		loadLevel();
 
-		new DirectionalLight([ -8, -10, 7 ], [ 0.6, 0.6, 0.65 ]);
-		new PointLight([ -10, 10, -5 ], [ 10, 10, 25 ]);
-		new PointLight([ 10, 10, -5 ], [ 50, 20, 20 ]);
+		// new StaticMesh(resources.suzanne, [ 0, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
+		// new StaticMesh(resources.suzanne, [ -3, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
+		// new StaticMesh(resources.suzanne, [ 3, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
+		// new StaticMesh(resources.suzanne, [ -6, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
+		// new StaticMesh(resources.suzanne, [ 6, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
+		// new StaticMesh(resources.suzanne, [ 0, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
+		// new StaticMesh(resources.suzanne, [ -3, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
+		// new StaticMesh(resources.suzanne, [ 3, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
+		// new StaticMesh(resources.suzanne, [ -6, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
+		// new StaticMesh(resources.suzanne, [ 6, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
 
-		for (var x = -10; x <= 10; x += 2)
-		{
-			for (var y = -10; y <= 10; y += 2)
-			{
-				new StaticMesh(resources.stoneslabs, [ 1 * x, -1.5, 1 * y ], [ 0, 0, 1 ], [ 0, 1, 0 ], 1);
-			}
-		}
+		// new DirectionalLight([ -8, -10, 7 ], [ 0.6, 0.6, 0.65 ]);
+		// new PointLight([ -10, 10, -5 ], [ 10, 10, 25 ]);
+		// new PointLight([ 10, 10, -5 ], [ 50, 20, 20 ]);
+
+		// for (var x = -10; x <= 10; x += 2)
+		// {
+		// 	for (var y = -10; y <= 10; y += 2)
+		// 	{
+		// 		new StaticMesh(resources.stoneslabs, [ 1 * x, -1.5, 1 * y ], [ 0, 0, 1 ], [ 0, 1, 0 ], 1);
+		// 	}
+		// }
 
 		mainLoop(0);
 	});
@@ -204,6 +210,12 @@ function loadResources(callback)
 		loadImage("res/mat_pebbles/normals.jpg"),
 		loadImage("res/mat_pebbles/roughness.jpg"),
 		loadImage("res/mat_pebbles/displacement.png"),
+		loadImage("res/mat_damagedwall/diffuseaoblend.jpg"),
+		loadImage("res/mat_damagedwall/normals.jpg"),
+		loadImage("res/mat_damagedwall/roughness.jpg"),
+		loadImage("res/mat_plaster/diffuse.jpg"),
+		loadImage("res/mat_plaster/normals.jpg"),
+		loadImage("res/mat_plaster/roughness.jpg"),
 	).done(function(
 		mdvs, mdfs,
 		mdnrvs, mdnrfs,
@@ -213,7 +225,9 @@ function loadResources(callback)
 		floor,
 		stoneslabsdiffuse, stoneslabsnorm, stoneslabsrough, stoneslabsdisplacement,
 		tilesdiffuse, tilesnorm, tilesrough, tilesdisplacement,
-		pebblesdiffuse, pebblesnorm, pebblesrough, pebblesdisplacement
+		pebblesdiffuse, pebblesnorm, pebblesrough, pebblesdisplacement,
+		damagedwalldiffuse, damagedwallnorm, damagedwallrough,
+		plasterdiffuse, plasternorm, plasterrough,
 	) {
 		meshDShader = {
 			program: makeProgram(mdvs[0], mdfs[0]),
@@ -274,6 +288,8 @@ function loadResources(callback)
 		deferredShader.roughnessTex = gl.getUniformLocation(deferredShader.program, "roughnessTex");
 		deferredShader.lights = gl.getUniformLocation(deferredShader.program, "lights");
 		deferredShader.lightColors = gl.getUniformLocation(deferredShader.program, "lightColors");
+		deferredShader.lightDirections = gl.getUniformLocation(deferredShader.program, "lightDirections");
+		deferredShader.lightRadii = gl.getUniformLocation(deferredShader.program, "lightRadii");
 		deferredShader.lightTypes = gl.getUniformLocation(deferredShader.program, "lightTypes");
 		deferredShader.lightNum = gl.getUniformLocation(deferredShader.program, "numLights");
 		deferredShader.cameraPosition = gl.getUniformLocation(deferredShader.program, "cameraPosition");
@@ -287,6 +303,10 @@ function loadResources(callback)
 		resources.tiles = new Model(floor[0], resources.tilesMat);
 		resources.pebblesMat = new DiffuseNormalRoughnessPOMMaterial(pebblesdiffuse, pebblesnorm, pebblesrough, pebblesdisplacement, 0.07, 64);
 		resources.pebbles = new Model(floor[0], resources.pebblesMat);
+		resources.damagedwallMat = new DiffuseNormalRoughnessMaterial(damagedwalldiffuse, damagedwallnorm, damagedwallrough);
+		resources.damagedwall = new Model(floor[0], resources.damagedwallMat);
+		resources.plasterMat = new DiffuseNormalRoughnessMaterial(plasterdiffuse, plasternorm, plasterrough);
+		resources.plaster = new Model(floor[0], resources.plasterMat);
 
 		callback();
 	});

@@ -12,9 +12,11 @@ uniform sampler2D diffuseTex;
 uniform sampler2D normalTex;
 uniform sampler2D positionTex;
 uniform sampler2D roughnessTex;
-uniform vec3 lights[100];
-uniform vec3 lightColors[100];
-uniform int lightTypes[100];
+uniform vec3 lights[32];
+uniform vec3 lightColors[32];
+uniform vec3 lightDirections[32];
+uniform vec2 lightRadii[32];
+uniform int lightTypes[32];
 uniform int numLights;
 uniform vec3 cameraPosition;
 
@@ -72,13 +74,19 @@ void main(void)
 	{
 		if (lightTypes[i] == 0)
 		{
-			relativeLight = -lights[i];
+			relativeLight = -lightDirections[i];
 			lightDist = 1.0;
 		}
 		if (lightTypes[i] == 1)
 		{
 			relativeLight = lights[i] - position;
 			lightDist = 1.0 / dot(relativeLight, relativeLight);
+		}
+		if (lightTypes[i] == 2)
+		{
+			relativeLight = lights[i] - position;
+			lightDist = 1.0 / dot(relativeLight, relativeLight);
+			lightDist *= clamp((dot(normalize(relativeLight), lightDirections[i]) - lightRadii[i].y) / (lightRadii[i].x - lightRadii[i].y), 0.0, 1.0);
 		}
 		relativeLight = normalize(relativeLight);
 		ndotl = dot(normal, relativeLight);

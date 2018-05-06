@@ -36,6 +36,8 @@ function drawScene()
 
 	gl.uniform3fv(deferredShader.lights, lightPos);
 	gl.uniform3fv(deferredShader.lightColors, lightColor);
+	gl.uniform3fv(deferredShader.lightDirections, lightDir);
+	gl.uniform2fv(deferredShader.lightRadii, lightRadii);
 	gl.uniform1iv(deferredShader.lightTypes, lightType);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, quad.vertices);

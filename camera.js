@@ -4,7 +4,8 @@ var cameraControls = {
 	left: 65,
 	right: 68,
 	speed: 2,
-	mouseSensitivity: 0.001
+	mouseSensitivity: 0.001,
+	controllerSensitivity: 0.05,
 }
 
 function FPSCamera(angle, a, zMin, zMax)
@@ -58,6 +59,23 @@ function FPSCamera(angle, a, zMin, zMax)
 		if (pressedKeys[cameraControls.right])
 		{
 			this.position = addVectors(this.position, scaleVector(-change, normalize(cross(this.up, this.getFacing()))));
+		}
+
+		var gp = navigator.getGamepads()[0];
+		if (gp != null)
+		{
+			this.position = addVectors(this.position, scaleVector(change * gamepadAxisMap(-gp.axes[1]), this.getFacing()));
+			this.position = addVectors(this.position, scaleVector(change * gamepadAxisMap(-gp.axes[0]), normalize(cross(this.up, this.getFacing()))));
+			this.xAngle += cameraControls.controllerSensitivity * gamepadAxisMap(gp.axes[2]);
+			this.yAngle += cameraControls.controllerSensitivity * gamepadAxisMap(gp.axes[3]);
+			if (this.yAngle > 80 * Math.PI / 180)
+			{
+				this.yAngle = 80 * Math.PI / 180;
+			}
+			if (this.yAngle < -80 * Math.PI/ 180)
+			{
+				this.yAngle = -80 * Math.PI / 180;
+			}
 		}
 	}
 

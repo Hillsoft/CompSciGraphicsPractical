@@ -16,6 +16,8 @@ var resources = {
 	floorMat: null,
 	tiles: null,
 	tilesMat: null,
+	pebbles: null,
+	pebblesMat: null,
 };
 var stats = {
 	triangles: 0,
@@ -132,7 +134,7 @@ function graphicsInit(canvasId)
 		{
 			for (var y = -10; y <= 10; y += 2)
 			{
-				new StaticMesh(resources.floor, [ 1.5 * x, -1.5, 1.5 * y ], [ 0, 0, 1 ], [ 0, 1, 0 ], 1.5);
+				new StaticMesh(resources.floor, [ 1 * x, -1.5, 1 * y ], [ 0, 0, 1 ], [ 0, 1, 0 ], 1);
 			}
 		}
 
@@ -149,7 +151,7 @@ function loadImage(src)
 	image.onload = function() {
 		var texture = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.texParameterf(gl.TEXTURE_2D, anisotropicFilter.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+		gl.texParameterf(gl.TEXTURE_2D, anisotropicFilter.TEXTURE_MAX_ANISOTROPY_EXT, 8);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 		gl.generateMipmap(gl.TEXTURE_2D);
 		dfd.resolve(texture);
@@ -199,7 +201,12 @@ function loadResources(callback)
 		loadImage("res/tiledfloor/normals.jpg"),
 		loadImage("res/tiledfloor/roughness.jpg"),
 		loadImage("res/tiledfloor/displacement.png"),
-	).done(function(mdvs, mdfs, mdnrvs, mdnrfs, dnrpomvs, dnrpomfs, dvs, dfs, su, suao, floor, floortex, floornorm, floorrough, floordisplacement, tiles, tilestex, tilesnorm, tilesrough, tilesdisplacement) {
+		$.ajax("res/obj_floor/floor.obj"),
+		loadImage("res/mat_pebbles/diffuse.jpg"),
+		loadImage("res/mat_pebbles/normals.jpg"),
+		loadImage("res/mat_pebbles/roughness.jpg"),
+		loadImage("res/mat_pebbles/displacement.png"),
+	).done(function(mdvs, mdfs, mdnrvs, mdnrfs, dnrpomvs, dnrpomfs, dvs, dfs, su, suao, floor, floortex, floornorm, floorrough, floordisplacement, tiles, tilestex, tilesnorm, tilesrough, tilesdisplacement, floorobj, pebbles, pebblesnorm, pebblesrough, pebblesdisplacement) {
 		meshDShader = {
 			program: makeProgram(mdvs[0], mdfs[0]),
 		};
@@ -266,10 +273,12 @@ function loadResources(callback)
 
 		resources.suzanneMat = new DiffuseMaterial(suao, 0.0);
 		resources.suzanne = new Model(su[0], resources.suzanneMat);
-		resources.floorMat = new DiffuseNormalRoughnessPOMMaterial(floortex, floornorm, floorrough, floordisplacement, 0.009, 8);
+		resources.floorMat = new DiffuseNormalRoughnessPOMMaterial(floortex, floornorm, floorrough, floordisplacement, 0.006, 64);
 		resources.floor = new Model(floor[0], resources.floorMat);
-		resources.tilesMat = new DiffuseNormalRoughnessPOMMaterial(tilestex, tilesnorm, tilesrough, tilesdisplacement, 0.05, 8);
+		resources.tilesMat = new DiffuseNormalRoughnessPOMMaterial(tilestex, tilesnorm, tilesrough, tilesdisplacement, 0.01, 8);
 		resources.tiles = new Model(tiles[0], resources.tilesMat);
+		resources.pebblesMat = new DiffuseNormalRoughnessPOMMaterial(pebbles, pebblesnorm, pebblesrough, pebblesdisplacement, 0.07, 64);
+		resources.pebbles = new Model(floorobj[0], resources.pebblesMat);
 
 		callback();
 	});

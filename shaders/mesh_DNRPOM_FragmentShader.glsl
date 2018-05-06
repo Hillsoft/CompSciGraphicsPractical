@@ -22,16 +22,34 @@ out vec4 fragColor[4];
 void main(void)
 {
 	// Calculate POM uvs
-	vec3 viewDir = normalize(vTsViewPos - vTsFragPos);
+	vec3 viewDir = vTsViewPos - vTsFragPos;
 
-	float layerDepth = 1.0 / numLayers;
+	float modNumLayers = numLayers;
+	if (length(viewDir) > 4.0)
+	{
+		modNumLayers = modNumLayers / 4.0;
+	}
+	if (length(viewDir) > 8.0)
+	{
+		modNumLayers = modNumLayers / 2.0;
+	}
+	if (length(viewDir) > 12.0)
+	{
+		modNumLayers = 1.0;
+	}
+
+	modNumLayers = ceil(modNumLayers);
+
+	viewDir = normalize(viewDir);
+
+	float layerDepth = 1.0 / modNumLayers;
 	float curLayerDepth = 0.0;
-	vec2 deltauv = viewDir.xy * depthScale / (viewDir.z * numLayers);
+	vec2 deltauv = vec2(-1.0, 1.0) * viewDir.xy * depthScale / (viewDir.z * modNumLayers);
 	vec2 curuv = vTexcoord;
 
 	float depthTex = texture(displacementTex, curuv).r;
 
-	for (int i = 0; i < 32; i++)
+	for (int i = 0; i < 64; i++)
 	{
 		curLayerDepth += layerDepth;
 		curuv -= deltauv;

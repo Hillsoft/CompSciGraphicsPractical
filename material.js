@@ -67,7 +67,7 @@ function DiffuseNormalRoughnessPOMMaterial(texture, normalmap, roughness, displa
 
 		gl.activeTexture(gl.TEXTURE3);
 		gl.bindTexture(gl.TEXTURE_2D, this.displacement);
-		gl.uniform1i(meshDNRPOMShader.displacemenTex, 3);
+		gl.uniform1i(meshDNRPOMShader.displacementTex, 3);
 
 		gl.uniform1f(meshDNRPOMShader.depthScale, depthScale);
 		gl.uniform1f(meshDNRPOMShader.numLayers, numLayers);
@@ -79,6 +79,7 @@ function DiffuseNormalRoughnessPOMMaterial(texture, normalmap, roughness, displa
 	this.texture = texture;
 	this.normalmap = normalmap;
 	this.roughness = roughness;
+	this.displacement = displacement;
 
 	return this;
 }

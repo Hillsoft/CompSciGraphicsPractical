@@ -134,7 +134,7 @@ function graphicsInit(canvasId)
 		{
 			for (var y = -10; y <= 10; y += 2)
 			{
-				new StaticMesh(resources.pebbles, [ 1 * x, -1.5, 1 * y ], [ 0, 0, 1 ], [ 0, 1, 0 ], 1);
+				new StaticMesh(resources.floor, [ 1 * x, -1.5, 1 * y ], [ 0, 0, 1 ], [ 0, 1, 0 ], 1);
 			}
 		}
 
@@ -188,7 +188,7 @@ function loadResources(callback)
 		$.ajax("shaders/mesh_DNRPOM_VertexShader.glsl"),
 		$.ajax("shaders/mesh_DNRPOM_FragmentShader.glsl"),
 		$.ajax("shaders/deferredVertexShader.glsl"),
-		$.ajax("shaders/deferredFragmentShader.glsl"),
+		$.ajax("shaders/deferredFragmentCookTorranceShader.glsl"),
 		$.ajax("res/suzanne/suzanne.obj"),
 		loadImage("res/suzanne/ao.png"),
 		$.ajax("res/stonefloor/stonefloor.obj"),
@@ -271,7 +271,7 @@ function loadResources(callback)
 		deferredShader.cameraPosition = gl.getUniformLocation(deferredShader.program, "cameraPosition");
 		deferredShader.position = gl.getAttribLocation(deferredShader.program, "position");
 
-		resources.suzanneMat = new DiffuseMaterial(suao, 0.0);
+		resources.suzanneMat = new DiffuseMaterial(suao, 0.1);
 		resources.suzanne = new Model(su[0], resources.suzanneMat);
 		resources.floorMat = new DiffuseNormalRoughnessPOMMaterial(floortex, floornorm, floorrough, floordisplacement, 0.006, 4);
 		resources.floor = new Model(floor[0], resources.floorMat);

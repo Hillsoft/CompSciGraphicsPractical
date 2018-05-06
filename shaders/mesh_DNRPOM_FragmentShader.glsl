@@ -25,11 +25,11 @@ void main(void)
 	vec3 viewDir = vTsViewPos - vTsFragPos;
 
 	float modNumLayers = numLayers;
-	if (length(viewDir) > 4.0)
+	if (length(viewDir) > 8.0)
 	{
 		modNumLayers = modNumLayers / 2.0;
 	}
-	if (length(viewDir) > 8.0)
+	if (length(viewDir) > 10.0)
 	{
 		modNumLayers = modNumLayers / 4.0;
 	}

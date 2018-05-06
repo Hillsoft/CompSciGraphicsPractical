@@ -27,11 +27,11 @@ void main(void)
 	float modNumLayers = numLayers;
 	if (length(viewDir) > 4.0)
 	{
-		modNumLayers = modNumLayers / 4.0;
+		modNumLayers = modNumLayers / 2.0;
 	}
 	if (length(viewDir) > 8.0)
 	{
-		modNumLayers = modNumLayers / 2.0;
+		modNumLayers = modNumLayers / 4.0;
 	}
 	if (length(viewDir) > 12.0)
 	{

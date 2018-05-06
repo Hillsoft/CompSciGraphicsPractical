@@ -66,6 +66,8 @@ function FPSCamera(angle, a, zMin, zMax)
 		{
 			this.position = addVectors(this.position, scaleVector(change * gamepadAxisMap(-gp.axes[1]), this.getFacing()));
 			this.position = addVectors(this.position, scaleVector(change * gamepadAxisMap(-gp.axes[0]), normalize(cross(this.up, this.getFacing()))));
+			this.position = addVectors(this.position, scaleVector(change * gamepadAxisMap(gp.buttons[7].value), this.up));
+			this.position = addVectors(this.position, scaleVector(-change * gamepadAxisMap(gp.buttons[6].value), this.up));
 			this.xAngle += cameraControls.controllerSensitivity * gamepadAxisMap(gp.axes[2]);
 			this.yAngle += cameraControls.controllerSensitivity * gamepadAxisMap(gp.axes[3]);
 			if (this.yAngle > 80 * Math.PI / 180)

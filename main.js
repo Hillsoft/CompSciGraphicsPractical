@@ -12,8 +12,8 @@ var oldTime = 0;
 var resources = {
 	suzanne: null,
 	suzanneMat: null,
-	floor: null,
-	floorMat: null,
+	stoneslabs: null,
+	stoneslabsMat: null,
 	tiles: null,
 	tilesMat: null,
 	pebbles: null,
@@ -134,7 +134,7 @@ function graphicsInit(canvasId)
 		{
 			for (var y = -10; y <= 10; y += 2)
 			{
-				new StaticMesh(resources.floor, [ 1 * x, -1.5, 1 * y ], [ 0, 0, 1 ], [ 0, 1, 0 ], 1);
+				new StaticMesh(resources.stoneslabs, [ 1 * x, -1.5, 1 * y ], [ 0, 0, 1 ], [ 0, 1, 0 ], 1);
 			}
 		}
 
@@ -189,24 +189,32 @@ function loadResources(callback)
 		$.ajax("shaders/mesh_DNRPOM_FragmentShader.glsl"),
 		$.ajax("shaders/deferredVertexShader.glsl"),
 		$.ajax("shaders/deferredFragmentCookTorranceShader.glsl"),
-		$.ajax("res/suzanne/suzanne.obj"),
-		loadImage("res/suzanne/ao.png"),
-		$.ajax("res/stonefloor/stonefloor.obj"),
-		loadImage("res/stonefloor/diffuseaoblend.jpg"),
-		loadImage("res/stonefloor/normals.jpg"),
-		loadImage("res/stonefloor/roughness.jpg"),
-		loadImage("res/stonefloor/displacement.png"),
-		$.ajax("res/tiledfloor/tiledfloor.obj"),
-		loadImage("res/tiledfloor/diffuseaoblend.jpg"),
-		loadImage("res/tiledfloor/normals.jpg"),
-		loadImage("res/tiledfloor/roughness.jpg"),
-		loadImage("res/tiledfloor/displacement.png"),
+		$.ajax("res/matobj_suzanne/suzanne.obj"),
+		loadImage("res/matobj_suzanne/ao.png"),
 		$.ajax("res/obj_floor/floor.obj"),
-		loadImage("res/mat_pebbles/diffuse.jpg"),
+		loadImage("res/mat_stoneslabs/diffuseaoblend.jpg"),
+		loadImage("res/mat_stoneslabs/normals.jpg"),
+		loadImage("res/mat_stoneslabs/roughness.jpg"),
+		loadImage("res/mat_stoneslabs/displacement.png"),
+		loadImage("res/mat_tiledfloor/diffuseaoblend.jpg"),
+		loadImage("res/mat_tiledfloor/normals.jpg"),
+		loadImage("res/mat_tiledfloor/roughness.jpg"),
+		loadImage("res/mat_tiledfloor/displacement.png"),
+		loadImage("res/mat_pebbles/diffuseaoblend.jpg"),
 		loadImage("res/mat_pebbles/normals.jpg"),
 		loadImage("res/mat_pebbles/roughness.jpg"),
 		loadImage("res/mat_pebbles/displacement.png"),
-	).done(function(mdvs, mdfs, mdnrvs, mdnrfs, dnrpomvs, dnrpomfs, dvs, dfs, su, suao, floor, floortex, floornorm, floorrough, floordisplacement, tiles, tilestex, tilesnorm, tilesrough, tilesdisplacement, floorobj, pebbles, pebblesnorm, pebblesrough, pebblesdisplacement) {
+	).done(function(
+		mdvs, mdfs,
+		mdnrvs, mdnrfs,
+		dnrpomvs, dnrpomfs,
+		dvs, dfs,
+		su, suao,
+		floor,
+		stoneslabsdiffuse, stoneslabsnorm, stoneslabsrough, stoneslabsdisplacement,
+		tilesdiffuse, tilesnorm, tilesrough, tilesdisplacement,
+		pebblesdiffuse, pebblesnorm, pebblesrough, pebblesdisplacement
+	) {
 		meshDShader = {
 			program: makeProgram(mdvs[0], mdfs[0]),
 		};
@@ -273,12 +281,12 @@ function loadResources(callback)
 
 		resources.suzanneMat = new DiffuseMaterial(suao, 0.1);
 		resources.suzanne = new Model(su[0], resources.suzanneMat);
-		resources.floorMat = new DiffuseNormalRoughnessPOMMaterial(floortex, floornorm, floorrough, floordisplacement, 0.006, 4);
-		resources.floor = new Model(floor[0], resources.floorMat);
-		resources.tilesMat = new DiffuseNormalRoughnessPOMMaterial(tilestex, tilesnorm, tilesrough, tilesdisplacement, 0.01, 2);
-		resources.tiles = new Model(tiles[0], resources.tilesMat);
-		resources.pebblesMat = new DiffuseNormalRoughnessPOMMaterial(pebbles, pebblesnorm, pebblesrough, pebblesdisplacement, 0.07, 64);
-		resources.pebbles = new Model(floorobj[0], resources.pebblesMat);
+		resources.stoneslabsMat = new DiffuseNormalRoughnessPOMMaterial(stoneslabsdiffuse, stoneslabsnorm, stoneslabsrough, stoneslabsdisplacement, 0.006, 4);
+		resources.stoneslabs = new Model(floor[0], resources.stoneslabsMat);
+		resources.tilesMat = new DiffuseNormalRoughnessPOMMaterial(tilesdiffuse, tilesnorm, tilesrough, tilesdisplacement, 0.01, 2);
+		resources.tiles = new Model(floor[0], resources.tilesMat);
+		resources.pebblesMat = new DiffuseNormalRoughnessPOMMaterial(pebblesdiffuse, pebblesnorm, pebblesrough, pebblesdisplacement, 0.07, 64);
+		resources.pebbles = new Model(floor[0], resources.pebblesMat);
 
 		callback();
 	});

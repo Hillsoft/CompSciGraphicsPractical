@@ -1,8 +1,8 @@
-var lightPos = [];
-var lightColor = [];
-var lightDir = [];
-var lightRadii = [];
-var lightType = [];
+var lightPos = [ 0, 0, 0 ];
+var lightColor = [ 0, 0, 0 ];
+var lightDir = [ 0, 0, 0 ];
+var lightRadii = [ 0, 0 ];
+var lightType = [ 0 ];
 var lightNum = 0;
 
 function moveLight(light, newPosition)

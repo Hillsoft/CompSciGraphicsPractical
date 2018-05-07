@@ -2,7 +2,7 @@
 
 precision mediump float;
 
-const vec3 ambientLight = vec3(0.1);
+const vec3 ambientLight = vec3(0.05);
 const float PI = 3.1415926;
 const float r0 = 0.1;
 
@@ -46,7 +46,7 @@ void main(void)
 	// float metallic = texture(roughnessTex, vTexcoord).y;
 	float metallic = 0.0;
 	// float diffuseVal = texture(roughnessTex, vTexcoord).z;
-	float diffuseVal = 1.0 * (1.0 - metallic);
+	float diffuseVal = 0.5 * (1.0 - metallic);
 
 	if (diffuse.w == 0.0)
 	{
@@ -80,12 +80,12 @@ void main(void)
 		if (lightTypes[i] == 1)
 		{
 			relativeLight = lights[i] - position;
-			lightDist = 1.0 / dot(relativeLight, relativeLight);
+			lightDist = min(1.0, 1.0 / dot(relativeLight, relativeLight));
 		}
 		if (lightTypes[i] == 2)
 		{
 			relativeLight = lights[i] - position;
-			lightDist = 1.0 / dot(relativeLight, relativeLight);
+			lightDist = min(3.0, 1.0 / dot(relativeLight, relativeLight));
 			lightDist *= clamp((dot(normalize(relativeLight), lightDirections[i]) - lightRadii[i].y) / (lightRadii[i].x - lightRadii[i].y), 0.0, 1.0);
 		}
 		relativeLight = normalize(relativeLight);

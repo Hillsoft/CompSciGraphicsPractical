@@ -6,9 +6,12 @@ function drawModel(model, pMatrix, vMatrix, mMatrix)
 	gl.vertexAttribPointer(shader.position, 3, gl.FLOAT, false, 0, 0);
 	gl.enableVertexAttribArray(shader.position);
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, model.uv_buffer);
-	gl.vertexAttribPointer(shader.texcoord, 2, gl.FLOAT, false, 0, 0);
-	gl.enableVertexAttribArray(shader.texcoord);
+	if (typeof(shader.texcoord) !== "undefined")
+	{
+		gl.bindBuffer(gl.ARRAY_BUFFER, model.uv_buffer);
+		gl.vertexAttribPointer(shader.texcoord, 2, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(shader.texcoord);
+	}
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, model.normal_buffer);
 	gl.vertexAttribPointer(shader.normal, 3, gl.FLOAT, false, 0, 0);

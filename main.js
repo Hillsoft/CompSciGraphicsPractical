@@ -1,5 +1,6 @@
 var canvas = null;
 var gl = null;
+var meshBasicShader = null;
 var meshDShader = null;
 var meshDNRShader = null;
 var meshDNRPOMShader = null;
@@ -22,6 +23,13 @@ var resources = {
 	damagedwallMat: null,
 	plaster: null,
 	plasterMat: null,
+	metalMat: null,
+	striplight: null,
+	striplightfitting: null,
+	doorframe: null,
+	door: null,
+	rustedmetalMat: null,
+	doorhandle: null,
 };
 var stats = {
 	triangles: 0,
@@ -117,7 +125,7 @@ function graphicsInit(canvasId)
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(quadVerts), gl.STATIC_DRAW);
 
 	loadResources(function() {
-		camera = new FPSCamera(50, canvas.width / canvas.height, 1, 100);
+		camera = new FPSCamera(50, canvas.width / canvas.height, 0.1, 100);
 
 		loadLevel();
 
@@ -187,6 +195,8 @@ function makeProgram(vertexCode, fragmentCode)
 function loadResources(callback)
 {
 	$.when(
+		$.ajax("shaders/mesh_basic_VertexShader.glsl"),
+		$.ajax("shaders/mesh_basic_FragmentShader.glsl"),
 		$.ajax("shaders/mesh_D_VertexShader.glsl"),
 		$.ajax("shaders/mesh_D_FragmentShader.glsl"),
 		$.ajax("shaders/mesh_DNR_VertexShader.glsl"),
@@ -197,7 +207,13 @@ function loadResources(callback)
 		$.ajax("shaders/deferredFragmentCookTorranceShader.glsl"),
 		$.ajax("res/matobj_suzanne/suzanne.obj"),
 		loadImage("res/matobj_suzanne/ao.png"),
+		$.ajax("res/obj_striplight/strip.obj"),
+		$.ajax("res/obj_striplight/fitting.obj"),
+		$.ajax("res/obj_door/doorframe.obj"),
+		$.ajax("res/obj_door/door.obj"),
+		$.ajax("res/obj_door/handle.obj"),
 		$.ajax("res/obj_floor/floor.obj"),
+		$.ajax("res/obj_floor/floorht.obj"),
 		loadImage("res/mat_stoneslabs/diffuseaoblend.jpg"),
 		loadImage("res/mat_stoneslabs/normals.jpg"),
 		loadImage("res/mat_stoneslabs/roughness.jpg"),
@@ -216,19 +232,42 @@ function loadResources(callback)
 		loadImage("res/mat_plaster/diffuse.jpg"),
 		loadImage("res/mat_plaster/normals.jpg"),
 		loadImage("res/mat_plaster/roughness.jpg"),
+		loadImage("res/mat_metal/diffuse.jpg"),
+		loadImage("res/mat_metal/normals.jpg"),
+		loadImage("res/mat_metal/roughness.jpg"),
+		loadImage("res/mat_rustedmetal/diffuse.jpg"),
+		loadImage("res/mat_rustedmetal/normals.jpg"),
+		loadImage("res/mat_rustedmetal/roughness.jpg"),
 	).done(function(
+		mbvs, mbfs,
 		mdvs, mdfs,
 		mdnrvs, mdnrfs,
 		dnrpomvs, dnrpomfs,
 		dvs, dfs,
 		su, suao,
-		floor,
+		striplight, stripfitting,
+		doorframe, door, doorhandle,
+		floor, floorht,
 		stoneslabsdiffuse, stoneslabsnorm, stoneslabsrough, stoneslabsdisplacement,
 		tilesdiffuse, tilesnorm, tilesrough, tilesdisplacement,
 		pebblesdiffuse, pebblesnorm, pebblesrough, pebblesdisplacement,
 		damagedwalldiffuse, damagedwallnorm, damagedwallrough,
 		plasterdiffuse, plasternorm, plasterrough,
+		metaldiffuse, metalnormals, metalroughness,
+		rustmetaldiffuse, rustmetalnorm, rustmetalrough,
 	) {
+		meshBasicShader = {
+			program: makeProgram(mbvs[0], mbfs[0]),
+		};
+
+		meshBasicShader.pMatrix = gl.getUniformLocation(meshBasicShader.program, "pMatrix");
+		meshBasicShader.vMatrix = gl.getUniformLocation(meshBasicShader.program, "vMatrix");
+		meshBasicShader.mMatrix = gl.getUniformLocation(meshBasicShader.program, "mMatrix");
+		meshBasicShader.diffuse = gl.getUniformLocation(meshBasicShader.program, "diffuse");
+		meshBasicShader.roughness = gl.getUniformLocation(meshBasicShader.program, "roughness");
+		meshBasicShader.position = gl.getAttribLocation(meshBasicShader.program, "position");
+		meshBasicShader.normal = gl.getAttribLocation(meshBasicShader.program, "normal");
+
 		meshDShader = {
 			program: makeProgram(mdvs[0], mdfs[0]),
 		};
@@ -306,7 +345,14 @@ function loadResources(callback)
 		resources.damagedwallMat = new DiffuseNormalRoughnessMaterial(damagedwalldiffuse, damagedwallnorm, damagedwallrough);
 		resources.damagedwall = new Model(floor[0], resources.damagedwallMat);
 		resources.plasterMat = new DiffuseNormalRoughnessMaterial(plasterdiffuse, plasternorm, plasterrough);
-		resources.plaster = new Model(floor[0], resources.plasterMat);
+		resources.plaster = new Model(floorht[0], resources.plasterMat);
+		resources.metalMat = new DiffuseNormalRoughnessMaterial(metaldiffuse, metalnormals, metalroughness);
+		resources.striplight = new Model(striplight[0], new BasicMaterial([ 1.0, 1.0, 1.0 ], [ 0.0, 0.0, 0.0 ]));
+		resources.striplightfitting = new Model(stripfitting[0], resources.metalMat);
+		resources.doorframe = new Model(doorframe[0], resources.metalMat);
+		resources.rustedmetalMat = new DiffuseNormalRoughnessMaterial(rustmetaldiffuse, rustmetalnorm, rustmetalrough, 0.03, 4);
+		resources.door = new Model(door[0], resources.rustedmetalMat);
+		resources.doorhandle = new Model(doorhandle[0], resources.metalMat);
 
 		callback();
 	});

@@ -1,3 +1,21 @@
+function BasicMaterial(diffuse, roughness)
+{
+	this.prepareShader = function()
+	{
+		gl.useProgram(meshBasicShader.program);
+
+		gl.uniform3f(meshBasicShader.diffuse, this.diffuse[0], this.diffuse[1], this.diffuse[2]);
+		gl.uniform1f(meshBasicShader.roughness, this.roughness);
+
+		return meshBasicShader;
+	}
+
+	this.diffuse = diffuse;
+	this.roughness = roughness;
+
+	return this;
+}
+
 function DiffuseMaterial(texture, roughness)
 {
 	this.prepareShader = function()

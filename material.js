@@ -1,4 +1,4 @@
-function BasicMaterial(diffuse, roughness)
+function BasicMaterial(diffuse, roughness, diffuseStrength, metallic)
 {
 	this.prepareShader = function()
 	{
@@ -6,17 +6,21 @@ function BasicMaterial(diffuse, roughness)
 
 		gl.uniform3f(meshBasicShader.diffuse, this.diffuse[0], this.diffuse[1], this.diffuse[2]);
 		gl.uniform1f(meshBasicShader.roughness, this.roughness);
+		gl.uniform1f(meshBasicShader.diffuseVal, this.diffuseStrength);
+		gl.uniform1f(meshBasicShader.metallic, this.metallic);
 
 		return meshBasicShader;
 	}
 
 	this.diffuse = diffuse;
 	this.roughness = roughness;
+	this.diffuseStrength = diffuseStrength;
+	this.metallic = metallic;
 
 	return this;
 }
 
-function DiffuseMaterial(texture, roughness)
+function DiffuseMaterial(texture, roughness, diffuseStrength, metallic)
 {
 	this.prepareShader = function()
 	{
@@ -27,17 +31,21 @@ function DiffuseMaterial(texture, roughness)
 		gl.uniform1i(meshDShader.diffuse, 0);
 
 		gl.uniform1f(meshDShader.roughness, this.roughness);
+		gl.uniform1f(meshDShader.diffuseVal, this.diffuseStrength);
+		gl.uniform1f(meshDShader.metallic, this.metallic);
 
 		return meshDShader;
 	}
 
 	this.texture = texture;
 	this.roughness = roughness;
+	this.diffuseStrength = diffuseStrength;
+	this.metallic = metallic;
 
 	return this;
 }
 
-function DiffuseNormalRoughnessMaterial(texture, normalmap, roughness)
+function DiffuseNormalRoughnessMaterial(texture, normalmap, roughness, diffuseStrength, metallic)
 {
 	this.prepareShader = function()
 	{
@@ -55,17 +63,22 @@ function DiffuseNormalRoughnessMaterial(texture, normalmap, roughness)
 		gl.bindTexture(gl.TEXTURE_2D, this.roughness);
 		gl.uniform1i(meshDNRShader.roughnessTex, 2);
 
+		gl.uniform1f(meshDNRShader.diffuseVal, this.diffuseStrength);
+		gl.uniform1f(meshDNRShader.metallic, this.metallic);
+
 		return meshDNRShader;
 	}
 
 	this.texture = texture;
 	this.normalmap = normalmap;
 	this.roughness = roughness;
+	this.diffuseStrength = diffuseStrength;
+	this.metallic = metallic;
 
 	return this;
 }
 
-function DiffuseNormalRoughnessPOMMaterial(texture, normalmap, roughness, displacement, depthScale = 0.05, numLayers = 8)
+function DiffuseNormalRoughnessPOMMaterial(texture, normalmap, roughness, displacement, diffuseStrength, metallic, depthScale = 0.05, numLayers = 8)
 {
 	this.prepareShader = function()
 	{
@@ -91,6 +104,9 @@ function DiffuseNormalRoughnessPOMMaterial(texture, normalmap, roughness, displa
 		gl.uniform1f(meshDNRPOMShader.numLayers, numLayers);
 		gl.uniform3f(meshDNRPOMShader.camera, camera.position[0], camera.position[1], camera.position[2]);
 
+		gl.uniform1f(meshDNRPOMShader.diffuseVal, this.diffuseStrength);
+		gl.uniform1f(meshDNRPOMShader.metallic, this.metallic);
+
 		return meshDNRPOMShader;
 	}
 
@@ -98,6 +114,8 @@ function DiffuseNormalRoughnessPOMMaterial(texture, normalmap, roughness, displa
 	this.normalmap = normalmap;
 	this.roughness = roughness;
 	this.displacement = displacement;
+	this.diffuseStrength = diffuseStrength;
+	this.metallic = metallic;
 
 	return this;
 }

@@ -43,10 +43,8 @@ void main(void)
 	vec3 normal = texture(normalTex, vTexcoord).xyz;
 	vec3 position = texture(positionTex, vTexcoord).xyz;
 	float roughness = texture(roughnessTex, vTexcoord).x;
-	// float metallic = texture(roughnessTex, vTexcoord).y;
-	float metallic = 0.0;
-	// float diffuseVal = texture(roughnessTex, vTexcoord).z;
-	float diffuseVal = 0.5 * (1.0 - metallic);
+	float metallic = texture(roughnessTex, vTexcoord).y;
+	float diffuseVal = (1.0 - metallic) * texture(roughnessTex, vTexcoord).z;
 
 	if (diffuse.w == 0.0)
 	{

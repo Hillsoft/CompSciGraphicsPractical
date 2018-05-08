@@ -129,29 +129,6 @@ function graphicsInit(canvasId)
 
 		loadLevel();
 
-		// new StaticMesh(resources.suzanne, [ 0, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
-		// new StaticMesh(resources.suzanne, [ -3, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
-		// new StaticMesh(resources.suzanne, [ 3, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
-		// new StaticMesh(resources.suzanne, [ -6, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
-		// new StaticMesh(resources.suzanne, [ 6, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
-		// new StaticMesh(resources.suzanne, [ 0, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
-		// new StaticMesh(resources.suzanne, [ -3, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
-		// new StaticMesh(resources.suzanne, [ 3, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
-		// new StaticMesh(resources.suzanne, [ -6, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
-		// new StaticMesh(resources.suzanne, [ 6, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
-
-		// new DirectionalLight([ -8, -10, 7 ], [ 0.6, 0.6, 0.65 ]);
-		// new PointLight([ -10, 10, -5 ], [ 10, 10, 25 ]);
-		// new PointLight([ 10, 10, -5 ], [ 50, 20, 20 ]);
-
-		// for (var x = -10; x <= 10; x += 2)
-		// {
-		// 	for (var y = -10; y <= 10; y += 2)
-		// 	{
-		// 		new StaticMesh(resources.stoneslabs, [ 1 * x, -1.5, 1 * y ], [ 0, 0, 1 ], [ 0, 1, 0 ], 1);
-		// 	}
-		// }
-
 		mainLoop(0);
 	});
 }
@@ -265,6 +242,8 @@ function loadResources(callback)
 		meshBasicShader.mMatrix = gl.getUniformLocation(meshBasicShader.program, "mMatrix");
 		meshBasicShader.diffuse = gl.getUniformLocation(meshBasicShader.program, "diffuse");
 		meshBasicShader.roughness = gl.getUniformLocation(meshBasicShader.program, "roughness");
+		meshBasicShader.diffuseVal = gl.getUniformLocation(meshBasicShader.program, "diffuseVal");
+		meshBasicShader.metallic = gl.getUniformLocation(meshBasicShader.program, "metallic");
 		meshBasicShader.position = gl.getAttribLocation(meshBasicShader.program, "position");
 		meshBasicShader.normal = gl.getAttribLocation(meshBasicShader.program, "normal");
 
@@ -277,6 +256,8 @@ function loadResources(callback)
 		meshDShader.mMatrix = gl.getUniformLocation(meshDShader.program, "mMatrix");
 		meshDShader.diffuse = gl.getUniformLocation(meshDShader.program, "diffuseTex");
 		meshDShader.roughness = gl.getUniformLocation(meshDShader.program, "roughness");
+		meshDShader.diffuseVal = gl.getUniformLocation(meshDShader.program, "diffuseVal");
+		meshDShader.metallic = gl.getUniformLocation(meshDShader.program, "metallic");
 		meshDShader.position = gl.getAttribLocation(meshDShader.program, "position");
 		meshDShader.normal = gl.getAttribLocation(meshDShader.program, "normal");
 		meshDShader.texcoord = gl.getAttribLocation(meshDShader.program, "texCoord");
@@ -291,6 +272,8 @@ function loadResources(callback)
 		meshDNRShader.diffuse = gl.getUniformLocation(meshDNRShader.program, "diffuseTex");
 		meshDNRShader.normalTex = gl.getUniformLocation(meshDNRShader.program, "normalTex");
 		meshDNRShader.roughnessTex = gl.getUniformLocation(meshDNRShader.program, "roughnessTex");
+		meshDNRShader.diffuseVal = gl.getUniformLocation(meshDNRShader.program, "diffuseVal");
+		meshDNRShader.metallic = gl.getUniformLocation(meshDNRShader.program, "metallic");
 		meshDNRShader.position = gl.getAttribLocation(meshDNRShader.program, "position");
 		meshDNRShader.normal = gl.getAttribLocation(meshDNRShader.program, "normal");
 		meshDNRShader.texcoord = gl.getAttribLocation(meshDNRShader.program, "texcoord");
@@ -311,6 +294,8 @@ function loadResources(callback)
 		meshDNRPOMShader.normalTex = gl.getUniformLocation(meshDNRPOMShader.program, "normalTex");
 		meshDNRPOMShader.roughnessTex = gl.getUniformLocation(meshDNRPOMShader.program, "roughnessTex");
 		meshDNRPOMShader.displacementTex = gl.getUniformLocation(meshDNRPOMShader.program, "displacementTex");
+		meshDNRPOMShader.diffuseVal = gl.getUniformLocation(meshDNRPOMShader.program, "diffuseVal");
+		meshDNRPOMShader.metallic = gl.getUniformLocation(meshDNRPOMShader.program, "metallic");
 		meshDNRPOMShader.position = gl.getAttribLocation(meshDNRPOMShader.program, "position");
 		meshDNRPOMShader.normal = gl.getAttribLocation(meshDNRPOMShader.program, "normal");
 		meshDNRPOMShader.texcoord = gl.getAttribLocation(meshDNRPOMShader.program, "texcoord");
@@ -334,23 +319,23 @@ function loadResources(callback)
 		deferredShader.cameraPosition = gl.getUniformLocation(deferredShader.program, "cameraPosition");
 		deferredShader.position = gl.getAttribLocation(deferredShader.program, "position");
 
-		resources.suzanneMat = new DiffuseMaterial(suao, 0.1);
+		resources.suzanneMat = new DiffuseMaterial(suao, 0.1, 0.0, 1.0);
 		resources.suzanne = new Model(su[0], resources.suzanneMat);
-		resources.stoneslabsMat = new DiffuseNormalRoughnessPOMMaterial(stoneslabsdiffuse, stoneslabsnorm, stoneslabsrough, stoneslabsdisplacement, 0.006, 4);
+		resources.stoneslabsMat = new DiffuseNormalRoughnessPOMMaterial(stoneslabsdiffuse, stoneslabsnorm, stoneslabsrough, stoneslabsdisplacement, 0.9, 0.0, 0.006, 4);
 		resources.stoneslabs = new Model(floor[0], resources.stoneslabsMat);
-		resources.tilesMat = new DiffuseNormalRoughnessPOMMaterial(tilesdiffuse, tilesnorm, tilesrough, tilesdisplacement, 0.01, 2);
+		resources.tilesMat = new DiffuseNormalRoughnessPOMMaterial(tilesdiffuse, tilesnorm, tilesrough, tilesdisplacement, 0.5, 0.0, 0.01, 2);
 		resources.tiles = new Model(floor[0], resources.tilesMat);
-		resources.pebblesMat = new DiffuseNormalRoughnessPOMMaterial(pebblesdiffuse, pebblesnorm, pebblesrough, pebblesdisplacement, 0.07, 64);
+		resources.pebblesMat = new DiffuseNormalRoughnessPOMMaterial(pebblesdiffuse, pebblesnorm, pebblesrough, pebblesdisplacement, 0.8, 0.0, 0.05, 64);
 		resources.pebbles = new Model(floor[0], resources.pebblesMat);
-		resources.damagedwallMat = new DiffuseNormalRoughnessMaterial(damagedwalldiffuse, damagedwallnorm, damagedwallrough);
+		resources.damagedwallMat = new DiffuseNormalRoughnessMaterial(damagedwalldiffuse, damagedwallnorm, damagedwallrough, 0.8, 0.0);
 		resources.damagedwall = new Model(floor[0], resources.damagedwallMat);
-		resources.plasterMat = new DiffuseNormalRoughnessMaterial(plasterdiffuse, plasternorm, plasterrough);
+		resources.plasterMat = new DiffuseNormalRoughnessMaterial(plasterdiffuse, plasternorm, plasterrough, 0.9, 0.0);
 		resources.plaster = new Model(floorht[0], resources.plasterMat);
-		resources.metalMat = new DiffuseNormalRoughnessMaterial(metaldiffuse, metalnormals, metalroughness);
-		resources.striplight = new Model(striplight[0], new BasicMaterial([ 1.0, 1.0, 1.0 ], [ 0.0, 0.0, 0.0 ]));
+		resources.metalMat = new DiffuseNormalRoughnessMaterial(metaldiffuse, metalnormals, metalroughness, 0.0, 1.0);
+		resources.striplight = new Model(striplight[0], new BasicMaterial([ 1.0, 1.0, 1.0 ], [ 0.0, 0.0, 0.0 ], 1.0, 0.0));
 		resources.striplightfitting = new Model(stripfitting[0], resources.metalMat);
 		resources.doorframe = new Model(doorframe[0], resources.metalMat);
-		resources.rustedmetalMat = new DiffuseNormalRoughnessMaterial(rustmetaldiffuse, rustmetalnorm, rustmetalrough, 0.03, 4);
+		resources.rustedmetalMat = new DiffuseNormalRoughnessMaterial(rustmetaldiffuse, rustmetalnorm, rustmetalrough, 0.0, 1.0);
 		resources.door = new Model(door[0], resources.rustedmetalMat);
 		resources.doorhandle = new Model(doorhandle[0], resources.metalMat);
 

@@ -16,6 +16,8 @@ uniform sampler2D displacementTex;
 
 uniform float depthScale;
 uniform float numLayers;
+uniform float diffuseVal;
+uniform float metallic;
 
 out vec4 fragColor[4];
 
@@ -72,5 +74,5 @@ void main(void)
 	fragColor[0] = texture(diffuseTex, pTexcoord);
 	fragColor[1] = vec4(normalize(normalMap.r * vTangent + normalMap.g * vBiTangent + normalMap.b * vNormal), 1.0);
 	fragColor[2] = vec4(vPosition, 1.0);
-	fragColor[3] = vec4(clamp(texture(roughnessTex, pTexcoord).x, 0.01, 1.0));
+	fragColor[3] = vec4(clamp(texture(roughnessTex, pTexcoord).x, 0.01, 1.0), metallic, diffuseVal, 1.0);
 }

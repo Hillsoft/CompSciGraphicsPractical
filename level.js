@@ -1,3 +1,29 @@
+function demoLevel()
+{
+	new StaticMesh(resources.suzanne, [ 0, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
+	new StaticMesh(resources.suzanne, [ -3, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
+	new StaticMesh(resources.suzanne, [ 3, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
+	new StaticMesh(resources.suzanne, [ -6, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
+	new StaticMesh(resources.suzanne, [ 6, 0, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
+	new StaticMesh(resources.suzanne, [ 0, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
+	new StaticMesh(resources.suzanne, [ -3, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
+	new StaticMesh(resources.suzanne, [ 3, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
+	new StaticMesh(resources.suzanne, [ -6, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
+	new StaticMesh(resources.suzanne, [ 6, 0, -3 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
+
+	new DirectionalLight([ -8, -10, 7 ], [ 0.6, 0.6, 0.65 ]);
+	new PointLight([ -10, 10, -5 ], [ 10, 10, 25 ]);
+	new PointLight([ 10, 10, -5 ], [ 50, 20, 20 ]);
+
+	for (var x = -10; x <= 10; x += 2)
+	{
+		for (var y = -10; y <= 10; y += 2)
+		{
+			new StaticMesh(resources.pebbles, [ 1 * x, -1.5, 1 * y ], [ 0, 0, 1 ], [ 0, 1, 0 ], 1);
+		}
+	}
+}
+
 function loadLevel()
 {
 	new StaticMesh(resources.damagedwall, [ -1, 1, -17], [ 1, 0, 0 ], [ 0, 0, 1 ]);

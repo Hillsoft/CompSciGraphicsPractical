@@ -8,37 +8,54 @@ var cameraControls = {
 	controllerSensitivity: 0.05,
 }
 
+function lookAt(eye, center, up)
+{
+	var zAxis = scaleVector(-1, subVectors(center, eye));
+	var xAxis = normalize(cross(up, zAxis));
+	var yAxis = cross(zAxis, xAxis);
+
+	return inverse([
+	   xAxis[0], xAxis[1], xAxis[2], 0,
+	   yAxis[0], yAxis[1], yAxis[2], 0,
+	   zAxis[0], zAxis[1], zAxis[2], 0,
+	   eye[0],
+	   eye[1],
+	   eye[2],
+	   1,
+	]);
+}
+
+function projection(angle, a, zMin, zMax)
+{
+	var ang = Math.tan((angle * 0.5) * Math.PI / 180);
+	return [
+		0.5 / ang, 0, 0, 0,
+		0, 0.5 * a / ang, 0, 0,
+		0, 0, -(zMax + zMin) / (zMax - zMin), -1,
+		0, 0, (-2 * zMax * zMin) / (zMax - zMin), 0
+	];
+}
+
+function orthographic(minx, maxx, miny, maxy, minz, maxz)
+{
+	return [
+		2 / (maxx - minx), 0, 0, -(maxx + minx) / (maxx - minx),
+		0, 2 / (maxy - miny), 0, -(maxy + miny) / (maxy - miny),
+		0, 0, -2 / (maxz - minz), -(maxz + minz) / (maxz - minz),
+		0, 0, 0, 1
+	];
+}
+
 function FPSCamera(angle, a, zMin, zMax)
 {
 	this.getProjectionMatrix = function()
 	{
-		var ang = Math.tan((this.angle * 0.5) * Math.PI / 180);
-		return [
-			0.5 / ang, 0, 0, 0,
-			0, 0.5 * this.a / ang, 0, 0,
-			0, 0, -(this.zMax + this.zMin) / (this.zMax - this.zMin), -1,
-			0, 0, (-2 * this.zMax * this.zMin) / (this.zMax - this.zMin), 0
-		];
+		return projection(this.angle, this.a, this.zMin, this.zMax);
 	}
 
 	this.getViewMatrix = function()
 	{
-		// var facing = this.getFacing();
-		// var target = addVectors(this.position, facing);
-		// var zAxis = normalize(subVectors(this.position, target));
-		var zAxis = scaleVector(-1, this.getFacing());
-		var xAxis = normalize(cross(this.up, zAxis));
-		var yAxis = cross(zAxis, xAxis);
-	 
-		return inverse([
-		   xAxis[0], xAxis[1], xAxis[2], 0,
-		   yAxis[0], yAxis[1], yAxis[2], 0,
-		   zAxis[0], zAxis[1], zAxis[2], 0,
-		   this.position[0],
-		   this.position[1],
-		   this.position[2],
-		   1,
-		]);
+		return lookAt(this.position, addVectors(this.position, this.getFacing()), this.up);
 	}
 
 	this.tick = function(dt)

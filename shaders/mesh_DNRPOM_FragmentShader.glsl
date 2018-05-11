@@ -27,15 +27,15 @@ void main(void)
 	vec3 viewDir = vTsViewPos - vTsFragPos;
 
 	float modNumLayers = numLayers;
-	if (length(viewDir) > 8.0)
+	if (length(viewDir) > 40.0)
 	{
 		modNumLayers = modNumLayers / 2.0;
 	}
-	if (length(viewDir) > 10.0)
+	if (length(viewDir) > 60.0)
 	{
 		modNumLayers = modNumLayers / 4.0;
 	}
-	if (length(viewDir) > 12.0)
+	if (length(viewDir) > 75.0)
 	{
 		modNumLayers = 1.0;
 	}
@@ -46,25 +46,25 @@ void main(void)
 
 	float layerDepth = 1.0 / modNumLayers;
 	float curLayerDepth = 0.0;
-	vec2 deltauv = vec2(-1.0, 1.0) * viewDir.xy * depthScale / (viewDir.z * modNumLayers);
+	vec2 deltauv = vec2(1.0, -1.0) * viewDir.xy * depthScale / (viewDir.z * modNumLayers);
 	vec2 curuv = vTexcoord;
 
 	float depthTex = texture(displacementTex, curuv).r;
 
-	for (int i = 0; i < 64; i++)
+	for (int i = 0; i < 128; i++)
 	{
 		curLayerDepth += layerDepth;
 		curuv -= deltauv;
 		depthTex = texture(displacementTex, curuv).r;
-		if (depthTex < curLayerDepth)
+		if (depthTex > 1.0 - curLayerDepth)
 		{
 			break;
 		}
 	}
 
 	vec2 prevuv = curuv + deltauv;
-	float next = depthTex - curLayerDepth;
-	float prev = texture(displacementTex, prevuv).r - curLayerDepth + layerDepth;
+	float next = depthTex - (1.0 - curLayerDepth);
+	float prev = texture(displacementTex, prevuv).r - (1.0 - curLayerDepth) + layerDepth;
 	float weight = next / (next - prev);
 
 	vec2 pTexcoord = mix(curuv, prevuv, weight);

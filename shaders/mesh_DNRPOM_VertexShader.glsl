@@ -25,9 +25,9 @@ void main(void)
 	vPosition = (mMatrix * vec4(position, 1.0)).xyz;
 	gl_Position = pMatrix * vMatrix * vec4(vPosition, 1.0);
 	vTexcoord = texcoord;
-	vNormal = (mMatrix * vec4(normal, 0.0)).xyz;
-	vTangent = (mMatrix * vec4(tangent, 0.0)).xyz;
-	vBiTangent = (mMatrix * vec4(biTangent, 0.0)).xyz;
+	vNormal = normalize(mMatrix * vec4(normal, 0.0)).xyz;
+	vTangent = normalize(mMatrix * vec4(tangent, 0.0)).xyz;
+	vBiTangent = normalize(mMatrix * vec4(biTangent, 0.0)).xyz;
 
 	mat3 tbn = transpose(mat3(vTangent, vBiTangent, vNormal));
 	vTsViewPos = tbn * cameraPos;

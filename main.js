@@ -30,6 +30,10 @@ var resources = {
 	door: null,
 	rustedmetalMat: null,
 	doorhandle: null,
+	metalHexMat: null,
+	metalHex: null,
+	metalHex500: null,
+	ship: null,
 };
 var stats = {
 	triangles: 0,
@@ -87,9 +91,11 @@ function graphicsInit(canvasId)
 
 	frameBufferTexs[2] = gl.createTexture();
 	gl.bindTexture(gl.TEXTURE_2D, frameBufferTexs[2]);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, canvas.width, canvas.height, 0, gl.RGBA, gl.FLOAT, null);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, canvas.width, canvas.height, 0, gl.RGBA, gl.FLOAT, null);
 
 	frameBufferTexs[3] = gl.createTexture();
 	gl.bindTexture(gl.TEXTURE_2D, frameBufferTexs[3]);
@@ -125,9 +131,11 @@ function graphicsInit(canvasId)
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(quadVerts), gl.STATIC_DRAW);
 
 	loadResources(function() {
-		camera = new FPSCamera(50, canvas.width / canvas.height, 0.1, 100);
+		new GamepadOnPressMonitor();
+		// camera = new FPSCamera(50, canvas.width / canvas.height, 0.1, 500);
 
-		loadLevel();
+		// demoLevel();
+		testArea();
 
 		mainLoop(0);
 	});
@@ -191,6 +199,9 @@ function loadResources(callback)
 		$.ajax("res/obj_door/handle.obj"),
 		$.ajax("res/obj_floor/floor.obj"),
 		$.ajax("res/obj_floor/floorht.obj"),
+		$.ajax("res/obj_floor500x500/floor.obj"),
+		$.ajax("res/obj_ship/ship.obj"),
+		loadImage("res/obj_ship/ao.png"),
 		loadImage("res/mat_stoneslabs/diffuseaoblend.jpg"),
 		loadImage("res/mat_stoneslabs/normals.jpg"),
 		loadImage("res/mat_stoneslabs/roughness.jpg"),
@@ -215,6 +226,10 @@ function loadResources(callback)
 		loadImage("res/mat_rustedmetal/diffuse.jpg"),
 		loadImage("res/mat_rustedmetal/normals.jpg"),
 		loadImage("res/mat_rustedmetal/roughness.jpg"),
+		loadImage("res/mat_metalhex/diffuseaoblend.jpg"),
+		loadImage("res/mat_metalhex/normals.png"),
+		loadImage("res/mat_metalhex/roughness.jpg"),
+		loadImage("res/mat_metalhex/displacement.png"),
 	).done(function(
 		mbvs, mbfs,
 		mdvs, mdfs,
@@ -224,7 +239,8 @@ function loadResources(callback)
 		su, suao,
 		striplight, stripfitting,
 		doorframe, door, doorhandle,
-		floor, floorht,
+		floor, floorht, floor500,
+		ship, shipao,
 		stoneslabsdiffuse, stoneslabsnorm, stoneslabsrough, stoneslabsdisplacement,
 		tilesdiffuse, tilesnorm, tilesrough, tilesdisplacement,
 		pebblesdiffuse, pebblesnorm, pebblesrough, pebblesdisplacement,
@@ -232,6 +248,7 @@ function loadResources(callback)
 		plasterdiffuse, plasternorm, plasterrough,
 		metaldiffuse, metalnormals, metalroughness,
 		rustmetaldiffuse, rustmetalnorm, rustmetalrough,
+		metalhexdiffuse, metalhexnorm, metalhexrough, metalhexdisplacement,
 	) {
 		meshBasicShader = {
 			program: makeProgram(mbvs[0], mbfs[0]),
@@ -321,11 +338,11 @@ function loadResources(callback)
 
 		resources.suzanneMat = new DiffuseMaterial(suao, 0.1, 0.0, 1.0);
 		resources.suzanne = new Model(su[0], resources.suzanneMat);
-		resources.stoneslabsMat = new DiffuseNormalRoughnessPOMMaterial(stoneslabsdiffuse, stoneslabsnorm, stoneslabsrough, stoneslabsdisplacement, 0.9, 0.0, 0.006, 4);
+		resources.stoneslabsMat = new DiffuseNormalRoughnessPOMMaterial(stoneslabsdiffuse, stoneslabsnorm, stoneslabsrough, stoneslabsdisplacement, 0.9, 0.0, 0.004, 16);
 		resources.stoneslabs = new Model(floor[0], resources.stoneslabsMat);
-		resources.tilesMat = new DiffuseNormalRoughnessPOMMaterial(tilesdiffuse, tilesnorm, tilesrough, tilesdisplacement, 0.5, 0.0, 0.01, 2);
+		resources.tilesMat = new DiffuseNormalRoughnessPOMMaterial(tilesdiffuse, tilesnorm, tilesrough, tilesdisplacement, 0.5, 0.0, 0.01, 16);
 		resources.tiles = new Model(floor[0], resources.tilesMat);
-		resources.pebblesMat = new DiffuseNormalRoughnessPOMMaterial(pebblesdiffuse, pebblesnorm, pebblesrough, pebblesdisplacement, 0.8, 0.0, 0.05, 64);
+		resources.pebblesMat = new DiffuseNormalRoughnessPOMMaterial(pebblesdiffuse, pebblesnorm, pebblesrough, pebblesdisplacement, 0.8, 0.0, 0.05, 128);
 		resources.pebbles = new Model(floor[0], resources.pebblesMat);
 		resources.damagedwallMat = new DiffuseNormalRoughnessMaterial(damagedwalldiffuse, damagedwallnorm, damagedwallrough, 0.8, 0.0);
 		resources.damagedwall = new Model(floor[0], resources.damagedwallMat);
@@ -338,6 +355,10 @@ function loadResources(callback)
 		resources.rustedmetalMat = new DiffuseNormalRoughnessMaterial(rustmetaldiffuse, rustmetalnorm, rustmetalrough, 0.0, 1.0);
 		resources.door = new Model(door[0], resources.rustedmetalMat);
 		resources.doorhandle = new Model(doorhandle[0], resources.metalMat);
+		resources.metalHexMat = new DiffuseNormalRoughnessPOMMaterial(metalhexdiffuse, metalhexnorm, metalhexrough, metalhexdisplacement, 0.0, 1.0, 0.005, 16);
+		resources.metalHex = new Model(floor[0], resources.metalHexMat);
+		resources.metalHex500 = new Model(floor500[0], resources.metalHexMat);
+		resources.ship = new Model(ship[0], new DiffuseMaterial(shipao, 0.2, 0.0, 1.0));
 
 		callback();
 	});

@@ -3,6 +3,7 @@ var lightColor = [ 0, 0, 0 ];
 var lightDir = [ 0, 0, 0 ];
 var lightRadii = [ 0, 0 ];
 var lightType = [ 0 ];
+var lights = [ null ];
 var lightNum = 0;
 
 function moveLight(light, newPosition)
@@ -27,6 +28,15 @@ function aimLight(light, newDirection)
 	lightDir[3 * light.lightIndex + 2] = newDirection[2];
 }
 
+function getLightDirection(light)
+{
+	return [
+		lightDir[3 * light.lightIndex],
+		lightDir[3 * light.lightIndex + 1],
+		lightDir[3 * light.lightIndex + 2],
+	];
+}
+
 function setLightRadii(light, innerRadius, outerRadius)
 {
 	lightRadii[2 * light.lightIndex] = Math.cos(innerRadius);
@@ -42,6 +52,7 @@ function DirectionalLight(direction, color)
 
 	aimLight(this, direction);
 	setLightColor(this, color);
+	lights[this.lightIndex] = this;
 
 	return this;
 }
@@ -55,6 +66,7 @@ function PointLight(position, color)
 
 	moveLight(this, position);
 	setLightColor(this, color);
+	lights[this.lightIndex] = this;
 
 	return this;
 }
@@ -70,6 +82,7 @@ function SpotLight(position, direction, color, innerRadius, outerRadius)
 	setLightColor(this, color);
 	aimLight(this, direction);
 	setLightRadii(this, innerRadius, outerRadius);
+	lights[this.lightIndex] = this;
 
 	return this;
 }

@@ -250,3 +250,34 @@ function StaticMesh(model, position, facing, up, scale = 1)
 
 	return this;
 }
+
+function MovableMesh(model, owner)
+{
+
+	this.draw = function(pMatrix, vMatrix)
+	{
+		var zAxis = scaleVector(-1, this.owner.facing);
+		var xAxis = normalize(cross(this.owner.up, zAxis));
+		var yAxis = cross(zAxis, xAxis);
+
+		var mMatrix = [
+			xAxis[0], xAxis[1], xAxis[2], 0,
+			yAxis[0], yAxis[1], yAxis[2], 0,
+			zAxis[0], zAxis[1], zAxis[2], 0,
+			this.owner.position[0],
+			this.owner.position[1],
+			this.owner.position[2],
+			1,
+		];
+
+		drawModel(this.model, pMatrix, vMatrix, mMatrix);
+	}
+
+	this.model = model;
+	this.owner = owner;
+
+	registerDrawObject(this);
+	stats.triangles += this.model.faceIndices.length / 3;
+
+	return this;
+}

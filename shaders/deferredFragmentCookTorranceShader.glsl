@@ -1,6 +1,6 @@
 #version 300 es
 
-precision mediump float;
+precision highp float;
 
 const vec3 ambientLight = vec3(0.05);
 const float PI = 3.1415926;
@@ -44,7 +44,7 @@ void main(void)
 	vec3 position = texture(positionTex, vTexcoord).xyz;
 	float roughness = texture(roughnessTex, vTexcoord).x;
 	float metallic = texture(roughnessTex, vTexcoord).y;
-	float diffuseVal = (1.0 - metallic) * texture(roughnessTex, vTexcoord).z;
+	float diffuseVal = mix(texture(roughnessTex, vTexcoord).z, 0.2, metallic);
 
 	if (diffuse.w == 0.0)
 	{
@@ -78,7 +78,7 @@ void main(void)
 		if (lightTypes[i] == 1)
 		{
 			relativeLight = lights[i] - position;
-			lightDist = min(1.0, 1.0 / dot(relativeLight, relativeLight));
+			lightDist = min(1.0 / sqrt(length(lightColors[i])), 1.0 / dot(relativeLight, relativeLight));
 		}
 		if (lightTypes[i] == 2)
 		{
@@ -87,13 +87,12 @@ void main(void)
 			lightDist *= clamp((dot(normalize(relativeLight), lightDirections[i]) - lightRadii[i].y) / (lightRadii[i].x - lightRadii[i].y), 0.0, 1.0);
 		}
 		relativeLight = normalize(relativeLight);
-		ndotl = dot(normal, relativeLight);
+		ndotl = max(0.0, dot(normal, relativeLight));
 		halfVector = normalize(relativeLight + relativeCamera);
 		ndoth = max(0.0, dot(normal, halfVector));
 		ndotv = max(0.0, dot(normal, relativeCamera));
 		vdoth = max(0.0, dot(relativeCamera, halfVector));
 
-		// d = exp(-(1.0 - sqr(ndoth)) / (sqr(ndoth) * sqr(roughness))) / (PI * sqr(roughness) * sqr(sqr(ndoth)));
 		if (ndoth <= 0.0)
 		{
 			d = 0.0;

@@ -57,6 +57,9 @@ function Ship()
 		new PointLight([ 0, 0, 0 ], [ 0, 0, 0 ]),
 	];
 
+	this.bbMin = [ -8.2624, -1.755, -8.1876 ];
+	this.bbMax = [ 14.8251, 3.5, 8.1876 ];
+
 	registerTickObject(this);
 
 	return this;

@@ -15,13 +15,13 @@ function lookAt(eye, center, up)
 	var yAxis = cross(zAxis, xAxis);
 
 	return inverse([
-	   xAxis[0], xAxis[1], xAxis[2], 0,
-	   yAxis[0], yAxis[1], yAxis[2], 0,
-	   zAxis[0], zAxis[1], zAxis[2], 0,
-	   eye[0],
-	   eye[1],
-	   eye[2],
-	   1,
+		xAxis[0], xAxis[1], xAxis[2], 0,
+		yAxis[0], yAxis[1], yAxis[2], 0,
+		zAxis[0], zAxis[1], zAxis[2], 0,
+		eye[0],
+		eye[1],
+		eye[2],
+		1,
 	]);
 }
 

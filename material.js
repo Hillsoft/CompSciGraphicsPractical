@@ -119,3 +119,40 @@ function DiffuseNormalRoughnessPOMMaterial(texture, normalmap, roughness, displa
 
 	return this;
 }
+
+function DiffuseNormalRoughnessMetalSpecularPOMMaterial(texture, normalmap, rsm, displacement, depthScale = 0.05, numLayers = 8)
+{
+	this.prepareShader = function()
+	{
+		gl.useProgram(meshDNRMSPOMShader.program);
+
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, this.texture);
+		gl.uniform1i(meshDNRMSPOMShader.diffuse, 0);
+
+		gl.activeTexture(gl.TEXTURE1);
+		gl.bindTexture(gl.TEXTURE_2D, this.normalmap);
+		gl.uniform1i(meshDNRMSPOMShader.normalTex, 1);
+
+		gl.activeTexture(gl.TEXTURE2);
+		gl.bindTexture(gl.TEXTURE_2D, this.rsm);
+		gl.uniform1i(meshDNRMSPOMShader.roughnessTex, 2);
+
+		gl.activeTexture(gl.TEXTURE3);
+		gl.bindTexture(gl.TEXTURE_2D, this.displacement);
+		gl.uniform1i(meshDNRMSPOMShader.displacementTex, 3);
+
+		gl.uniform1f(meshDNRMSPOMShader.depthScale, depthScale);
+		gl.uniform1f(meshDNRMSPOMShader.numLayers, numLayers);
+		gl.uniform3f(meshDNRMSPOMShader.camera, camera.position[0], camera.position[1], camera.position[2]);
+
+		return meshDNRMSPOMShader;
+	}
+
+	this.texture = texture;
+	this.normalmap = normalmap;
+	this.rsm = rsm;
+	this.displacement = displacement;
+
+	return this;
+}

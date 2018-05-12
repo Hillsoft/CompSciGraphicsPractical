@@ -163,8 +163,8 @@ function Model(objData, material)
 				var deltaUV2 = subVectors2(uv2, uv0);
 
 				var r = 1 / (deltaUV1[0] * deltaUV2[1] - deltaUV1[1] * deltaUV2[0]);
-				var tangent = scaleVector(r, subVectors(scaleVector(deltaUV2[1], deltaPos1), scaleVector(deltaUV1[1], deltaPos2)));
-				var biTangent = scaleVector(r, subVectors(scaleVector(deltaUV1[0], deltaPos2), scaleVector(deltaUV2[0], deltaPos1)));
+				var tangent = normalize(scaleVector(r, subVectors(scaleVector(deltaUV2[1], deltaPos1), scaleVector(deltaUV1[1], deltaPos2))));
+				var biTangent = normalize(scaleVector(r, subVectors(scaleVector(deltaUV1[0], deltaPos2), scaleVector(deltaUV2[0], deltaPos1))));
 
 				this.tangents[3 * (currentIndex - parts.length + 1)] += tangent[0];
 				this.tangents[3 * (currentIndex - parts.length + 1) + 1] += tangent[1];

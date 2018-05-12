@@ -71,8 +71,16 @@ function ShipCamera(ship)
 
 	this.getViewMatrix = function()
 	{
-		this.position = addVectors(addVectors(scaleVector(6, this.ship.up), scaleVector(-18, this.ship.facing)), this.ship.position);
-		return lookAt(this.position, addVectors(this.position, this.ship.facing), this.ship.up);
+		var lagPos = addVectors(this.ship.position, scaleVector(-cameraVelocityLag, this.ship.velocity));
+		var theta = -this.ship.spin * cameraSpinLag;
+		var lagDir = [
+			Math.cos(theta) * this.ship.facing[0] - Math.sin(theta) * this.ship.facing[2],
+			this.ship.facing[1],
+			Math.sin(theta) * this.ship.facing[0] + Math.cos(theta) * this.ship.facing[2]
+		];
+		this.position = addVectors(addVectors(scaleVector(6, this.ship.up), scaleVector(-18, lagDir)), lagPos);
+		// this.position = addVectors(addVectors(scaleVector(0, this.ship.up), scaleVector(15, this.ship.facing)), this.ship.position);
+		return lookAt(this.position, addVectors(this.position, lagDir), this.ship.up);
 	}
 
 	this.ship = ship;

@@ -44,7 +44,7 @@ void main(void)
 	vec3 position = texture(positionTex, vTexcoord).xyz;
 	float roughness = texture(roughnessTex, vTexcoord).x;
 	float metallic = texture(roughnessTex, vTexcoord).y;
-	float diffuseVal = mix(texture(roughnessTex, vTexcoord).z, 0.2, metallic);
+	float diffuseVal = mix(texture(roughnessTex, vTexcoord).z, 0.1, metallic);
 
 	if (diffuse.w == 0.0)
 	{
@@ -70,6 +70,11 @@ void main(void)
 	float g = 1.0;
 	for (int i = 0; i < numLights; i++)
 	{
+		if (lightColors[i] == vec3(0.0))
+		{
+			continue;
+		}
+
 		if (lightTypes[i] == 0)
 		{
 			relativeLight = -lightDirections[i];
@@ -84,7 +89,7 @@ void main(void)
 		{
 			relativeLight = lights[i] - position;
 			lightDist = min(3.0, 1.0 / dot(relativeLight, relativeLight));
-			lightDist *= clamp((dot(normalize(relativeLight), lightDirections[i]) - lightRadii[i].y) / (lightRadii[i].x - lightRadii[i].y), 0.0, 1.0);
+			lightDist *= clamp((dot(normalize(relativeLight), -lightDirections[i]) - lightRadii[i].y) / (lightRadii[i].x - lightRadii[i].y), 0.0, 1.0);
 		}
 		relativeLight = normalize(relativeLight);
 		ndotl = max(0.0, dot(normal, relativeLight));

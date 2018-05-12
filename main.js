@@ -34,6 +34,8 @@ var resources = {
 	metalHex: null,
 	metalHex500: null,
 	ship: null,
+	spiraltower: null,
+	ovalfloor: null,
 };
 var stats = {
 	triangles: 0,
@@ -135,7 +137,7 @@ function graphicsInit(canvasId)
 		// camera = new FPSCamera(50, canvas.width / canvas.height, 0.1, 500);
 
 		// demoLevel();
-		testArea();
+		ovalCircuit();
 
 		mainLoop(0);
 	});
@@ -188,6 +190,8 @@ function loadResources(callback)
 		$.ajax("shaders/mesh_DNR_FragmentShader.glsl"),
 		$.ajax("shaders/mesh_DNRPOM_VertexShader.glsl"),
 		$.ajax("shaders/mesh_DNRPOM_FragmentShader.glsl"),
+		$.ajax("shaders/mesh_DNRMSPOM_VertexShader.glsl"),
+		$.ajax("shaders/mesh_DNRMSPOM_FragmentShader.glsl"),
 		$.ajax("shaders/deferredVertexShader.glsl"),
 		$.ajax("shaders/deferredFragmentCookTorranceShader.glsl"),
 		$.ajax("res/matobj_suzanne/suzanne.obj"),
@@ -202,6 +206,13 @@ function loadResources(callback)
 		$.ajax("res/obj_floor500x500/floor.obj"),
 		$.ajax("res/obj_ship/ship.obj"),
 		loadImage("res/obj_ship/ao.png"),
+		$.ajax("res/obj_spiraltower/spiraltower.obj"),
+		$.ajax("res/obj_ovaltrack/floor.obj"),
+		$.ajax("res/obj_ovaltrack/walls.obj"),
+		$.ajax("res/obj_checkpoint/checkpoint.obj"),
+		loadImage("res/obj_checkpoint/diffuseaoblend.jpg"),
+		loadImage("res/obj_checkpoint/normals.jpg"),
+		loadImage("res/obj_checkpoint/roughness.jpg"),
 		loadImage("res/mat_stoneslabs/diffuseaoblend.jpg"),
 		loadImage("res/mat_stoneslabs/normals.jpg"),
 		loadImage("res/mat_stoneslabs/roughness.jpg"),
@@ -230,17 +241,25 @@ function loadResources(callback)
 		loadImage("res/mat_metalhex/normals.png"),
 		loadImage("res/mat_metalhex/roughness.jpg"),
 		loadImage("res/mat_metalhex/displacement.png"),
+		loadImage("res/mat_rockore/diffuseaoblend.jpg"),
+		loadImage("res/mat_rockore/normals.jpg"),
+		loadImage("res/mat_rockore/rsm.jpg"),
+		loadImage("res/mat_rockore/displacement.png"),
 	).done(function(
 		mbvs, mbfs,
 		mdvs, mdfs,
 		mdnrvs, mdnrfs,
 		dnrpomvs, dnrpomfs,
+		dnrmspomvs, dnrmspomfs,
 		dvs, dfs,
 		su, suao,
 		striplight, stripfitting,
 		doorframe, door, doorhandle,
 		floor, floorht, floor500,
 		ship, shipao,
+		spiraltower,
+		ovalfloor, ovalwalls,
+		checkpoint, checkpointdiffuse, checkpointnorm, checkpointrough,
 		stoneslabsdiffuse, stoneslabsnorm, stoneslabsrough, stoneslabsdisplacement,
 		tilesdiffuse, tilesnorm, tilesrough, tilesdisplacement,
 		pebblesdiffuse, pebblesnorm, pebblesrough, pebblesdisplacement,
@@ -249,6 +268,7 @@ function loadResources(callback)
 		metaldiffuse, metalnormals, metalroughness,
 		rustmetaldiffuse, rustmetalnorm, rustmetalrough,
 		metalhexdiffuse, metalhexnorm, metalhexrough, metalhexdisplacement,
+		orediffuse, orenorm, orersm, oredisplacement,
 	) {
 		meshBasicShader = {
 			program: makeProgram(mbvs[0], mbfs[0]),
@@ -319,6 +339,26 @@ function loadResources(callback)
 		meshDNRPOMShader.tangent = gl.getAttribLocation(meshDNRPOMShader.program, "tangent");
 		meshDNRPOMShader.biTangent = gl.getAttribLocation(meshDNRPOMShader.program, "biTangent");
 
+		meshDNRMSPOMShader = {
+			program: makeProgram(dnrmspomvs[0], dnrmspomfs[0])
+		};
+
+		meshDNRMSPOMShader.pMatrix = gl.getUniformLocation(meshDNRMSPOMShader.program, "pMatrix");
+		meshDNRMSPOMShader.vMatrix = gl.getUniformLocation(meshDNRMSPOMShader.program, "vMatrix");
+		meshDNRMSPOMShader.mMatrix = gl.getUniformLocation(meshDNRMSPOMShader.program, "mMatrix");
+		meshDNRMSPOMShader.camera = gl.getUniformLocation(meshDNRMSPOMShader.program, "cameraPos");
+		meshDNRMSPOMShader.depthScale = gl.getUniformLocation(meshDNRMSPOMShader.program, "depthScale");
+		meshDNRMSPOMShader.numLayers = gl.getUniformLocation(meshDNRMSPOMShader.program, "numLayers");
+		meshDNRMSPOMShader.diffuse = gl.getUniformLocation(meshDNRMSPOMShader.program, "diffuseTex");
+		meshDNRMSPOMShader.normalTex = gl.getUniformLocation(meshDNRMSPOMShader.program, "normalTex");
+		meshDNRMSPOMShader.roughnessTex = gl.getUniformLocation(meshDNRMSPOMShader.program, "roughnessTex");
+		meshDNRMSPOMShader.displacementTex = gl.getUniformLocation(meshDNRMSPOMShader.program, "displacementTex");;
+		meshDNRMSPOMShader.position = gl.getAttribLocation(meshDNRMSPOMShader.program, "position");
+		meshDNRMSPOMShader.normal = gl.getAttribLocation(meshDNRMSPOMShader.program, "normal");
+		meshDNRMSPOMShader.texcoord = gl.getAttribLocation(meshDNRMSPOMShader.program, "texcoord");
+		meshDNRMSPOMShader.tangent = gl.getAttribLocation(meshDNRMSPOMShader.program, "tangent");
+		meshDNRMSPOMShader.biTangent = gl.getAttribLocation(meshDNRMSPOMShader.program, "biTangent");
+
 		deferredShader = {
 			program: makeProgram(dvs[0], dfs[0])
 		};
@@ -355,10 +395,15 @@ function loadResources(callback)
 		resources.rustedmetalMat = new DiffuseNormalRoughnessMaterial(rustmetaldiffuse, rustmetalnorm, rustmetalrough, 0.0, 1.0);
 		resources.door = new Model(door[0], resources.rustedmetalMat);
 		resources.doorhandle = new Model(doorhandle[0], resources.metalMat);
-		resources.metalHexMat = new DiffuseNormalRoughnessPOMMaterial(metalhexdiffuse, metalhexnorm, metalhexrough, metalhexdisplacement, 0.0, 1.0, 0.005, 16);
+		resources.metalHexMat = new DiffuseNormalRoughnessPOMMaterial(metalhexdiffuse, metalhexnorm, metalhexrough, metalhexdisplacement, 0.0, 1.0, 0.005, 8);
 		resources.metalHex = new Model(floor[0], resources.metalHexMat);
 		resources.metalHex500 = new Model(floor500[0], resources.metalHexMat);
 		resources.ship = new Model(ship[0], new DiffuseMaterial(shipao, 0.2, 0.0, 1.0));
+		resources.tower = new Model(spiraltower[0], new BasicMaterial([ 0.8, 0.8, 1.0 ], 0.5, 0.7, 0.0));
+		resources.ovalfloor = new Model(ovalfloor[0], resources.metalHexMat);
+		resources.checkpoint = new Model(checkpoint[0], new DiffuseNormalRoughnessMaterial(checkpointdiffuse, checkpointnorm, checkpointrough, 0.0, 1.0));
+		resources.oreMat = new DiffuseNormalRoughnessMetalSpecularPOMMaterial(orediffuse, orenorm, orersm, oredisplacement, 0.05, 8);
+		resources.ovalwalls = new Model(ovalwalls[0], resources.oreMat);
 
 		callback();
 	});

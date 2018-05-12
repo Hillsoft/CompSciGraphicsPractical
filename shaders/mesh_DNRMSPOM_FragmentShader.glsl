@@ -70,12 +70,19 @@ void main(void)
 	float prev = texture(displacementTex, prevuv).r - (1.0 - curLayerDepth) + layerDepth;
 	float weight = next / (next - prev);
 
-	vec2 pTexcoord = mix(curuv, prevuv, weight);
+	// vec2 pTexcoord = mix(curuv, prevuv, weight);
+	vec2 pTexcoord = prevuv;
 
 
 	vec4 normalMap = 2.0 * texture(normalTex, pTexcoord) - vec4(1.0);
 	fragColor[0] = texture(diffuseTex, pTexcoord);
 	fragColor[1] = vec4(normalize(normalMap.r * vTangent + normalMap.g * vBiTangent + normalMap.b * vNormal), 1.0);
 	fragColor[2] = vec4(vPosition, 1.0);
-	fragColor[3] = vec4(clamp(texture(roughnessTex, pTexcoord).x, 0.01, 1.0), metallic, diffuseVal, 1.0);
+	vec3 rsm = texture(roughnessTex, pTexcoord).xyz;
+	fragColor[3] = vec4(
+		clamp(rsm.x, 0.01, 1.0),
+		rsm.y,
+		1.0 - rsm.z,
+		1.0
+	);
 }

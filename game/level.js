@@ -16,18 +16,20 @@ function testArea()
 
 function ovalCircuit()
 {
-	var ship = new Ship();
-	ship.position = [ -20, 3.5, -150 ];
-	ship.facing = [ 1, 0, 0 ];
+	var ship = new Ship(function()
+	{
+		this.position = [ -50, 3.5, -150 ];
+		this.facing = [ 1, 0, 0 ];
+	});
 	new ShipPlayerController(ship);
 	camera = new ShipCamera(ship);
 
 	var tm = new TrackManager(ship);
 
-	tm.addCheckpoint(new Checkpoint([ 0, 0, -150 ], [ 1, 0, 0 ]));
-	tm.addCheckpoint(new Checkpoint([ 450, 0, 0 ], [ 0, 0, 1 ]));
-	tm.addCheckpoint(new Checkpoint([ 0, 0, 150 ], [ -1, 0, 0 ]));
-	tm.addCheckpoint(new Checkpoint([ -450, 0, 0 ], [ 0, 0, 1 ]));
+	tm.addCheckpoint(new Checkpoint([ 0, 0, -150 ], [ 1, 0, 0 ], ship));
+	tm.addCheckpoint(new Checkpoint([ 450, 0, 0 ], [ 0, 0, 1 ], ship));
+	tm.addCheckpoint(new Checkpoint([ 0, 0, 150 ], [ -1, 0, 0 ], ship));
+	tm.addCheckpoint(new Checkpoint([ -450, 0, 0 ], [ 0, 0, 1 ], ship));
 
 
 	var lightCLeft = new LightCullingVolume([ -500, 0, -180 ], [ 500, 50, 0 ]);
@@ -60,4 +62,37 @@ function ovalCircuit()
 
 	new StaticMesh(resources.ovalfloor, [ 0, 0, 0 ], [ 1, 0, 0 ], [ 0, 1, 0 ]);
 	new StaticMesh(resources.ovalwalls, [ 0, 0, 0 ], [ 1, 0, 0 ], [ 0, 1, 0 ]);
+
+	// Straight walls
+	new Wall([ 300, 0, 120 ], [ -300, 0, 120 ], ship);
+	new Wall([ 300, 0, 180 ], [ -300, 0, 180 ], ship);
+	new Wall([ 300, 0, -120 ], [ -300, 0, -120 ], ship);
+	new Wall([ 300, 0, -180 ], [ -300, 0, -180 ], ship);
+
+	// Curved walls
+	var dTheta = Math.PI / 16;
+	for (var theta = 0; theta < Math.PI; theta += dTheta)
+	{
+		new Wall(
+			[ 300 + 120 * Math.sin(theta), 0, 120 * Math.cos(theta) ],
+			[ 300 + 120 * Math.sin(theta + dTheta), 0, 120 * Math.cos(theta + dTheta) ],
+			ship
+		);
+		new Wall(
+			[ 300 + 180 * Math.sin(theta), 0, 180 * Math.cos(theta) ],
+			[ 300 + 180 * Math.sin(theta + dTheta), 0, 180 * Math.cos(theta + dTheta) ],
+			ship
+		);
+
+		new Wall(
+			[ -300 - 120 * Math.sin(theta), 0, -120 * Math.cos(theta) ],
+			[ -300 - 120 * Math.sin(theta + dTheta), 0, -120 * Math.cos(theta + dTheta) ],
+			ship
+		);
+		new Wall(
+			[ -300 - 180 * Math.sin(theta), 0, -180 * Math.cos(theta) ],
+			[ -300 - 180 * Math.sin(theta + dTheta), 0, -180 * Math.cos(theta + dTheta) ],
+			ship
+		);
+	}
 }

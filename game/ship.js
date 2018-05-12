@@ -1,5 +1,24 @@
-function Ship()
+function Ship(intitials)
 {
+	this.intitials = intitials;
+
+	this.reset = function()
+	{
+		this.position = [ 0, 3.5, 0 ];
+		this.facing = [ 0, 0, 1 ];
+		this.velocity = [ 0, 0, 0 ];
+		this.spin = 0;
+
+		this.intitials();
+
+		this.trackManager.reset();
+	}
+
+	this.setTrackManager = function(tm)
+	{
+		this.trackManager = tm;
+	}
+
 	this.tick = function(dt)
 	{
 		dt = dt / 1000;
@@ -35,6 +54,8 @@ function Ship()
 
 		moveLight(this.lights[5], addVectors(addVectors(addVectors(scaleVector(12.5, this.facing), scaleVector(-0.9, this.up)), scaleVector(1, right)), this.position));
 		setLightColor(this.lights[5], scaleVector(Math.max(0, this.dspin), [ 30, 30, 70 ]));
+
+		this.imMatrix = inverse(transpose(this.model.getMMatrix()));
 	}
 
 	this.model = new MovableMesh(resources.ship, this);
@@ -48,6 +69,8 @@ function Ship()
 	this.spin = 0;
 	this.dspin = 0;
 
+	this.intitials();
+
 	this.lights = [
 		new PointLight([ 0, 0, 0 ], [ 0, 0, 0 ]),
 		new PointLight([ 0, 0, 0 ], [ 0, 0, 0 ]),
@@ -57,8 +80,11 @@ function Ship()
 		new PointLight([ 0, 0, 0 ], [ 0, 0, 0 ]),
 	];
 
-	this.bbMin = [ -8.2624, -1.755, -8.1876 ];
-	this.bbMax = [ 14.8251, 3.5, 8.1876 ];
+	this.bbMin1 = [ -8.1876, -1.755, -8.2624 ];
+	this.bbMax1 = [ 8.1876, 3.5, 3.06786 ];
+
+	this.bbMin2 = [ -1.6984, -1.755, -5.9234 ];
+	this.bbMax2 = [ 1.6984, 3.5, 14.7315 ];
 
 	registerTickObject(this);
 

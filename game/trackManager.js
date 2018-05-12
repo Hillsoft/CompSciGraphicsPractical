@@ -1,8 +1,20 @@
-function Checkpoint(position, facing)
+function Checkpoint(position, facing, ship)
 {
 	this.model = new StaticMesh(resources.checkpoint, position, facing, [ 0, 1, 0 ]);
 	this.facing = facing;
 	this.position = position;
+
+	var right = normalize(cross(this.facing, [ 0, 1, 0 ]));
+	new Wall(
+		addVectors(scaleVector(2.2, this.facing), addVectors(this.position, scaleVector(25.3127, right))),
+		addVectors(scaleVector(-2.2, this.facing), addVectors(this.position, scaleVector(25.3127, right))),
+		ship
+	);
+	new Wall(
+		addVectors(scaleVector(2.2, this.facing), addVectors(this.position, scaleVector(-25.3127, right))),
+		addVectors(scaleVector(-2.2, this.facing), addVectors(this.position, scaleVector(-25.3127, right))),
+		ship
+	);
 
 	return this;
 }
@@ -13,19 +25,20 @@ function TrackManager(ship)
 	{
 		this.lapTime += dt;
 
-		if (this.checkpoints.length == 0)
+		if (this.checkpoints.length < 2)
 			return;
 
 		var check = this.checkpoints[this.nextCheckpoint];
 
-		var shipMMatrix = inverse(transpose(this.ship.model.getMMatrix()));
-		// console.log(shipMMatrix);
+		var shipMMatrix = this.ship.imMatrix;
+		if (typeof(shipMMatrix) == "undefined")
+			return;
 
 		var planeNormal = mat4vec4Multiply(shipMMatrix, check.facing.concat(0));
 		var planeCenter = mat4vec4Multiply(shipMMatrix, check.position.concat(1));
 		var planeConstant = dot(planeNormal, planeCenter);
 
-		if (dot(planeCenter, planeCenter) < 900 && aabbPlaneCollision(this.ship.bbMin, this.ship.bbMax, planeNormal, planeConstant))
+		if (dot(planeCenter, planeCenter) < 900 && (aabbPlaneCollision(this.ship.bbMin1, this.ship.bbMax1, planeNormal, planeConstant) || aabbPlaneCollision(this.ship.bbMin2, this.ship.bbMax2, planeNormal, planeConstant)))
 		{
 			console.log("Checkpoint " + this.nextCheckpoint + " reached");
 			if (this.nextCheckpoint == 0)
@@ -53,11 +66,20 @@ function TrackManager(ship)
 		this.checkpoints.push(checkpoint);
 	}
 
+	this.reset = function()
+	{
+		this.nextCheckpoint = 1;
+		this.lap = 0;
+		this.lapTime = 0;
+	}
+
 	this.ship = ship;
 	this.checkpoints = [];
 	this.nextCheckpoint = 1;
 	this.lap = 0;
 	this.lapTime = 0;
+
+	this.ship.setTrackManager(this);
 
 	registerTickObject(this);
 

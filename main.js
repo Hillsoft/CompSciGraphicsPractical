@@ -248,6 +248,9 @@ function loadResources(callback)
 		$.ajax("res/obj_light/light.obj"),
 		loadImage("res/obj_light/diffuse.png"),
 		loadImage("res/obj_light/emission.png"),
+		$.ajax("res/obj_crystal/crystal.obj"),
+		loadImage("res/obj_crystal/aoblue.png"),
+		loadImage("res/obj_crystal/aored.png"),
 		loadImage("res/mat_stoneslabs/diffuseaoblend.jpg"),
 		loadImage("res/mat_stoneslabs/normals.jpg"),
 		loadImage("res/mat_stoneslabs/roughness.jpg"),
@@ -302,6 +305,7 @@ function loadResources(callback)
 		checkpoint, checkpointdiffuse, checkpointnorm, checkpointrough,
 		checkpointsign, checkpointsign0, checkpointsign1, checkpointsign2, checkpointsign3,
 		light, lightdiffuse, lightemission,
+		crystal, crystalaoblue, crystalaored,
 		stoneslabsdiffuse, stoneslabsnorm, stoneslabsrough, stoneslabsdisplacement,
 		tilesdiffuse, tilesnorm, tilesrough, tilesdisplacement,
 		pebblesdiffuse, pebblesnorm, pebblesrough, pebblesdisplacement,
@@ -453,28 +457,28 @@ function loadResources(callback)
 		deferredShader.cameraPosition = gl.getUniformLocation(deferredShader.program, "cameraPosition");
 		deferredShader.position = gl.getAttribLocation(deferredShader.program, "position");
 
-		resources.suzanneMat = new DiffuseMaterial(suao, 0.1, 0.0, 1.0);
-		resources.suzanne = new Model(su[0], resources.suzanneMat);
-		resources.stoneslabsMat = new DiffuseNormalRoughnessPOMMaterial(stoneslabsdiffuse, stoneslabsnorm, stoneslabsrough, stoneslabsdisplacement, 0.9, 0.0, 0.004, 16);
-		resources.stoneslabs = new Model(floor[0], resources.stoneslabsMat);
-		resources.tilesMat = new DiffuseNormalRoughnessPOMMaterial(tilesdiffuse, tilesnorm, tilesrough, tilesdisplacement, 0.5, 0.0, 0.01, 16);
-		resources.tiles = new Model(floor[0], resources.tilesMat);
-		resources.pebblesMat = new DiffuseNormalRoughnessPOMMaterial(pebblesdiffuse, pebblesnorm, pebblesrough, pebblesdisplacement, 0.8, 0.0, 0.05, 128);
-		resources.pebbles = new Model(floor[0], resources.pebblesMat);
-		resources.damagedwallMat = new DiffuseNormalRoughnessMaterial(damagedwalldiffuse, damagedwallnorm, damagedwallrough, 0.8, 0.0);
-		resources.damagedwall = new Model(floor[0], resources.damagedwallMat);
-		resources.plasterMat = new DiffuseNormalRoughnessMaterial(plasterdiffuse, plasternorm, plasterrough, 0.9, 0.0);
-		resources.plaster = new Model(floorht[0], resources.plasterMat);
-		resources.metalMat = new DiffuseNormalRoughnessMaterial(metaldiffuse, metalnormals, metalroughness, 0.0, 1.0);
-		resources.striplight = new Model(striplight[0], new BasicMaterial([ 1.0, 1.0, 1.0 ], [ 0.0, 0.0, 0.0 ], 1.0, 0.0));
-		resources.striplightfitting = new Model(stripfitting[0], resources.metalMat);
-		resources.doorframe = new Model(doorframe[0], resources.metalMat);
-		resources.rustedmetalMat = new DiffuseNormalRoughnessMaterial(rustmetaldiffuse, rustmetalnorm, rustmetalrough, 0.0, 1.0);
-		resources.door = new Model(door[0], resources.rustedmetalMat);
-		resources.doorhandle = new Model(doorhandle[0], resources.metalMat);
+		// resources.suzanneMat = new DiffuseMaterial(suao, 0.1, 0.0, 1.0);
+		// resources.suzanne = new Model(su[0], resources.suzanneMat);
+		// resources.stoneslabsMat = new DiffuseNormalRoughnessPOMMaterial(stoneslabsdiffuse, stoneslabsnorm, stoneslabsrough, stoneslabsdisplacement, 0.9, 0.0, 0.004, 16);
+		// resources.stoneslabs = new Model(floor[0], resources.stoneslabsMat);
+		// resources.tilesMat = new DiffuseNormalRoughnessPOMMaterial(tilesdiffuse, tilesnorm, tilesrough, tilesdisplacement, 0.5, 0.0, 0.01, 16);
+		// resources.tiles = new Model(floor[0], resources.tilesMat);
+		// resources.pebblesMat = new DiffuseNormalRoughnessPOMMaterial(pebblesdiffuse, pebblesnorm, pebblesrough, pebblesdisplacement, 0.8, 0.0, 0.05, 128);
+		// resources.pebbles = new Model(floor[0], resources.pebblesMat);
+		// resources.damagedwallMat = new DiffuseNormalRoughnessMaterial(damagedwalldiffuse, damagedwallnorm, damagedwallrough, 0.8, 0.0);
+		// resources.damagedwall = new Model(floor[0], resources.damagedwallMat);
+		// resources.plasterMat = new DiffuseNormalRoughnessMaterial(plasterdiffuse, plasternorm, plasterrough, 0.9, 0.0);
+		// resources.plaster = new Model(floorht[0], resources.plasterMat);
+		// resources.metalMat = new DiffuseNormalRoughnessMaterial(metaldiffuse, metalnormals, metalroughness, 0.0, 1.0);
+		// resources.striplight = new Model(striplight[0], new BasicMaterial([ 1.0, 1.0, 1.0 ], [ 0.0, 0.0, 0.0 ], 1.0, 0.0));
+		// resources.striplightfitting = new Model(stripfitting[0], resources.metalMat);
+		// resources.doorframe = new Model(doorframe[0], resources.metalMat);
+		// resources.rustedmetalMat = new DiffuseNormalRoughnessMaterial(rustmetaldiffuse, rustmetalnorm, rustmetalrough, 0.0, 1.0);
+		// resources.door = new Model(door[0], resources.rustedmetalMat);
+		// resources.doorhandle = new Model(doorhandle[0], resources.metalMat);
 		resources.metalHexMat = new DiffuseNormalRoughnessPOMMaterial(metalhexdiffuse, metalhexnorm, metalhexrough, metalhexdisplacement, 0.0, 1.0, 0.005, 8);
-		resources.metalHex = new Model(floor[0], resources.metalHexMat);
-		resources.metalHex500 = new Model(floor500[0], resources.metalHexMat);
+		// resources.metalHex = new Model(floor[0], resources.metalHexMat);
+		// resources.metalHex500 = new Model(floor500[0], resources.metalHexMat);
 		resources.ship = new Model(ship[0], new DiffuseMaterial(shipao, 0.2, 0.0, 1.0));
 		resources.tower = new Model(spiraltower[0], new BasicMaterial([ 0.8, 0.8, 1.0 ], 0.5, 0.7, 0.0));
 		resources.ovalfloor = new Model(ovalfloor[0], resources.metalHexMat);
@@ -487,6 +491,8 @@ function loadResources(callback)
 		resources.oreMat = new DiffuseNormalRoughnessMetalSpecularPOMMaterial(orediffuse, orenorm, orersm, oredisplacement, 0.05, 8);
 		resources.ovalwalls = new Model(ovalwalls[0], resources.oreMat);
 		resources.light = new Model(light[0], new EmissiveDiffuseMaterial(lightdiffuse, lightemission, 1.0, 0.0, 0.0));
+		resources.crystalsBlue = new Model(crystal[0], new DiffuseMaterial(crystalaoblue, 0.2, 0.2, 0.0));
+		resources.crystalsRed = new Model(crystal[0], new DiffuseMaterial(crystalaored, 0.2, 0.2, 0.0));
 
 		callback();
 	});

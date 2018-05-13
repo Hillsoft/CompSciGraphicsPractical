@@ -80,6 +80,40 @@ function ovalCircuit()
 	lightCBottom.addLight(new PointLight([ -450, lightHeight, 0 ], [ 1000, 1000, 1000, 1000 ]));
 	new StaticMesh(resources.light, [ -450, lightHeight, 0 ], [ 1, 0, 0 ], [ 0, 1, 0 ]);
 
+	new StaticMesh(resources.crystalsBlue, [ 43, 15, -180 ], [ 0, 1, 0 ], [ 0.1, 0, 1 ]);
+	new StaticMesh(resources.crystalsBlue, [ 87, 40, -182 ], [ 1, 0, 0 ], normalize([ 0, 0.5, 1 ]));
+	new StaticMesh(resources.crystalsBlue, [ 120, 55, -130 ], [ 1, 0, 0 ], normalize([ 0, -1, -1 ]));
+	new StaticMesh(resources.crystalsBlue, [ 142, 20, -115 ], [ 0, 1, 0 ], normalize([ -0.3, 0, -1 ]));
+	new StaticMesh(resources.crystalsBlue, [ 193, 15, -180 ], [ 0, 1, 0 ], [ 0.1, 0, 1 ]);
+	new StaticMesh(resources.crystalsBlue, [ 127, 40, -182 ], [ 1, 0, 0 ], normalize([ 0, 0.5, 1 ]));
+	new StaticMesh(resources.crystalsBlue, [ 270, 55, -130 ], [ 1, 0, 0 ], normalize([ 0, -1, -1 ]));
+	new StaticMesh(resources.crystalsBlue, [ 292, 20, -115 ], [ 0, 1, 0 ], normalize([ -0.3, 0, -1 ]));
+	new StaticMesh(resources.crystalsBlue, [ -43, 15, -180 ], [ 0, 1, 0 ], [ 0.1, 0, 1 ]);
+	new StaticMesh(resources.crystalsBlue, [ -87, 40, -182 ], [ 1, 0, 0 ], normalize([ 0, 0.5, 1 ]));
+	new StaticMesh(resources.crystalsBlue, [ -120, 55, -130 ], [ 1, 0, 0 ], normalize([ 0, -1, -1 ]));
+	new StaticMesh(resources.crystalsBlue, [ -142, 20, -115 ], [ 0, 1, 0 ], normalize([ -0.3, 0, -1 ]));
+	new StaticMesh(resources.crystalsBlue, [ -193, 15, -180 ], [ 0, 1, 0 ], [ 0.1, 0, 1 ]);
+	new StaticMesh(resources.crystalsBlue, [ -127, 40, -182 ], [ 1, 0, 0 ], normalize([ 0, 0.5, 1 ]));
+	new StaticMesh(resources.crystalsBlue, [ -270, 55, -130 ], [ 1, 0, 0 ], normalize([ 0, -1, -1 ]));
+	new StaticMesh(resources.crystalsBlue, [ -292, 20, -115 ], [ 0, 1, 0 ], normalize([ -0.3, 0, -1 ]));
+
+	new StaticMesh(resources.crystalsRed, [ 43, 15, 180 ], [ 0, 1, 0 ], [ 0.1, 0, -1 ]);
+	new StaticMesh(resources.crystalsRed, [ 87, 40, 182 ], [ 1, 0, 0 ], normalize([ 0, 0.5, -1 ]));
+	new StaticMesh(resources.crystalsRed, [ 120, 55, 130 ], [ 1, 0, 0 ], normalize([ 0, -1, 1 ]));
+	new StaticMesh(resources.crystalsRed, [ 142, 20, 115 ], [ 0, 1, 0 ], normalize([ -0.3, 0, 1 ]));
+	new StaticMesh(resources.crystalsRed, [ 193, 15, 180 ], [ 0, 1, 0 ], [ 0.1, 0, -1 ]);
+	new StaticMesh(resources.crystalsRed, [ 127, 40, 182 ], [ 1, 0, 0 ], normalize([ 0, 0.5, -1 ]));
+	new StaticMesh(resources.crystalsRed, [ 270, 55, 130 ], [ 1, 0, 0 ], normalize([ 0, -1, 1 ]));
+	new StaticMesh(resources.crystalsRed, [ 292, 20, 115 ], [ 0, 1, 0 ], normalize([ -0.3, 0, 1 ]));
+	new StaticMesh(resources.crystalsRed, [ -43, 15, 180 ], [ 0, 1, 0 ], [ 0.1, 0, -1 ]);
+	new StaticMesh(resources.crystalsRed, [ -87, 40, 182 ], [ 1, 0, 0 ], normalize([ 0, 0.5, -1 ]));
+	new StaticMesh(resources.crystalsRed, [ -120, 55, 130 ], [ 1, 0, 0 ], normalize([ 0, -1, 1 ]));
+	new StaticMesh(resources.crystalsRed, [ -142, 20, 115 ], [ 0, 1, 0 ], normalize([ -0.3, 0, 1 ]));
+	new StaticMesh(resources.crystalsRed, [ -193, 15, 180 ], [ 0, 1, 0 ], [ 0.1, 0, -1 ]);
+	new StaticMesh(resources.crystalsRed, [ -127, 40, 182 ], [ 1, 0, 0 ], normalize([ 0, 0.5, -1 ]));
+	new StaticMesh(resources.crystalsRed, [ -270, 55, 130 ], [ 1, 0, 0 ], normalize([ 0, -1, 1 ]));
+	new StaticMesh(resources.crystalsRed, [ -292, 20, 115 ], [ 0, 1, 0 ], normalize([ -0.3, 0, 1 ]));
+
 	new StaticMesh(resources.ovalwalls, [ 0, 0, 0 ], [ 1, 0, 0 ], [ 0, 1, 0 ]);
 	new StaticMesh(resources.ovalfloor, [ 0, 0, 0 ], [ 1, 0, 0 ], [ 0, 1, 0 ]);
 

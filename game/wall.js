@@ -1,4 +1,4 @@
-// Actually a disc
+// Actually a line
 function Wall(startPos, endPos, ship)
 {
 	this.tick = function(dt)

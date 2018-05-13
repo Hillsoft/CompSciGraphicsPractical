@@ -109,6 +109,12 @@ function graphicsInit(canvasId)
 	gl.bindTexture(gl.TEXTURE_2D, frameBufferTexs[4]);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, canvas.width, canvas.height, 0, gl.RGBA, gl.FLOAT, null);
+
+	frameBufferTexs[5] = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, frameBufferTexs[5]);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT16, canvas.width, canvas.height, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_SHORT, null);
 
 	frameBuffer = gl.createFramebuffer();
@@ -117,13 +123,15 @@ function graphicsInit(canvasId)
 	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, frameBufferTexs[1], 0);
 	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT2, gl.TEXTURE_2D, frameBufferTexs[2], 0);
 	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT3, gl.TEXTURE_2D, frameBufferTexs[3], 0);
-	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, frameBufferTexs[4], 0);
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT4, gl.TEXTURE_2D, frameBufferTexs[4], 0);
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, frameBufferTexs[5], 0);
 
 	gl.drawBuffers([
 		gl.COLOR_ATTACHMENT0,
 		gl.COLOR_ATTACHMENT1,
 		gl.COLOR_ATTACHMENT2,
 		gl.COLOR_ATTACHMENT3,
+		gl.COLOR_ATTACHMENT4,
 	]);
 
 	var quadVerts = [ 1, 1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1 ];
@@ -192,6 +200,8 @@ function loadResources(callback)
 		$.ajax("shaders/mesh_DNRPOM_FragmentShader.glsl"),
 		$.ajax("shaders/mesh_DNRMSPOM_VertexShader.glsl"),
 		$.ajax("shaders/mesh_DNRMSPOM_FragmentShader.glsl"),
+		$.ajax("shaders/mesh_ED_VertexShader.glsl"),
+		$.ajax("shaders/mesh_ED_FragmentShader.glsl"),
 		$.ajax("shaders/deferredVertexShader.glsl"),
 		$.ajax("shaders/deferredFragmentCookTorranceShader.glsl"),
 		$.ajax("res/matobj_suzanne/suzanne.obj"),
@@ -213,6 +223,9 @@ function loadResources(callback)
 		loadImage("res/obj_checkpoint/diffuseaoblend.jpg"),
 		loadImage("res/obj_checkpoint/normals.jpg"),
 		loadImage("res/obj_checkpoint/roughness.jpg"),
+		$.ajax("res/obj_light/light.obj"),
+		loadImage("res/obj_light/diffuse.png"),
+		loadImage("res/obj_light/emission.png"),
 		loadImage("res/mat_stoneslabs/diffuseaoblend.jpg"),
 		loadImage("res/mat_stoneslabs/normals.jpg"),
 		loadImage("res/mat_stoneslabs/roughness.jpg"),
@@ -251,6 +264,7 @@ function loadResources(callback)
 		mdnrvs, mdnrfs,
 		dnrpomvs, dnrpomfs,
 		dnrmspomvs, dnrmspomfs,
+		edvs, edfs,
 		dvs, dfs,
 		su, suao,
 		striplight, stripfitting,
@@ -260,6 +274,7 @@ function loadResources(callback)
 		spiraltower,
 		ovalfloor, ovalwalls,
 		checkpoint, checkpointdiffuse, checkpointnorm, checkpointrough,
+		light, lightdiffuse, lightemission,
 		stoneslabsdiffuse, stoneslabsnorm, stoneslabsrough, stoneslabsdisplacement,
 		tilesdiffuse, tilesnorm, tilesrough, tilesdisplacement,
 		pebblesdiffuse, pebblesnorm, pebblesrough, pebblesdisplacement,
@@ -359,6 +374,22 @@ function loadResources(callback)
 		meshDNRMSPOMShader.tangent = gl.getAttribLocation(meshDNRMSPOMShader.program, "tangent");
 		meshDNRMSPOMShader.biTangent = gl.getAttribLocation(meshDNRMSPOMShader.program, "biTangent");
 
+		meshEDShader = {
+			program: makeProgram(edvs[0], edfs[0])
+		};
+
+		meshEDShader.pMatrix = gl.getUniformLocation(meshEDShader.program, "pMatrix");
+		meshEDShader.vMatrix = gl.getUniformLocation(meshEDShader.program, "vMatrix");
+		meshEDShader.mMatrix = gl.getUniformLocation(meshEDShader.program, "mMatrix");
+		meshEDShader.diffuse = gl.getUniformLocation(meshEDShader.program, "diffuseTex");
+		meshEDShader.emission = gl.getUniformLocation(meshEDShader.program, "emissionTex");
+		meshEDShader.roughness = gl.getUniformLocation(meshEDShader.program, "roughness");
+		meshEDShader.diffuseVal = gl.getUniformLocation(meshEDShader.program, "diffuseVal");
+		meshEDShader.metallic = gl.getUniformLocation(meshEDShader.program, "metallic");
+		meshEDShader.position = gl.getAttribLocation(meshEDShader.program, "position");
+		meshEDShader.normal = gl.getAttribLocation(meshEDShader.program, "normal");
+		meshEDShader.texcoord = gl.getAttribLocation(meshEDShader.program, "texCoord");
+
 		deferredShader = {
 			program: makeProgram(dvs[0], dfs[0])
 		};
@@ -367,6 +398,7 @@ function loadResources(callback)
 		deferredShader.normalTex = gl.getUniformLocation(deferredShader.program, "normalTex");
 		deferredShader.positionTex = gl.getUniformLocation(deferredShader.program, "positionTex");
 		deferredShader.roughnessTex = gl.getUniformLocation(deferredShader.program, "roughnessTex");
+		deferredShader.emissionTex = gl.getUniformLocation(deferredShader.program, "emissionTex");
 		deferredShader.lights = gl.getUniformLocation(deferredShader.program, "lights");
 		deferredShader.lightColors = gl.getUniformLocation(deferredShader.program, "lightColors");
 		deferredShader.lightDirections = gl.getUniformLocation(deferredShader.program, "lightDirections");
@@ -404,6 +436,7 @@ function loadResources(callback)
 		resources.checkpoint = new Model(checkpoint[0], new DiffuseNormalRoughnessMaterial(checkpointdiffuse, checkpointnorm, checkpointrough, 0.0, 1.0));
 		resources.oreMat = new DiffuseNormalRoughnessMetalSpecularPOMMaterial(orediffuse, orenorm, orersm, oredisplacement, 0.05, 8);
 		resources.ovalwalls = new Model(ovalwalls[0], resources.oreMat);
+		resources.light = new Model(light[0], new EmissiveDiffuseMaterial(lightdiffuse, lightemission, 1.0, 0.0, 0.0));
 
 		callback();
 	});

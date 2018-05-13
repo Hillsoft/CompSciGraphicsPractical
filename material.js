@@ -156,3 +156,33 @@ function DiffuseNormalRoughnessMetalSpecularPOMMaterial(texture, normalmap, rsm,
 
 	return this;
 }
+
+function EmissiveDiffuseMaterial(texture, emission, roughness, diffuseStrength, metallic)
+{
+	this.prepareShader = function()
+	{
+		gl.useProgram(meshEDShader.program);
+
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, this.texture);
+		gl.uniform1i(meshEDShader.diffuse, 0);
+
+		gl.activeTexture(gl.TEXTURE1);
+		gl.bindTexture(gl.TEXTURE_2D, this.emission);
+		gl.uniform1i(meshEDShader.emission, 1);
+
+		gl.uniform1f(meshEDShader.roughness, this.roughness);
+		gl.uniform1f(meshEDShader.diffuseVal, this.diffuseStrength);
+		gl.uniform1f(meshEDShader.metallic, this.metallic);
+
+		return meshEDShader;
+	}
+
+	this.texture = texture;
+	this.emission = emission;
+	this.roughness = roughness;
+	this.diffuseStrength = diffuseStrength;
+	this.metallic = metallic;
+
+	return this;
+}

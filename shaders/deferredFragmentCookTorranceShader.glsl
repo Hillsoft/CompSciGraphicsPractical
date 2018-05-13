@@ -12,6 +12,7 @@ uniform sampler2D diffuseTex;
 uniform sampler2D normalTex;
 uniform sampler2D positionTex;
 uniform sampler2D roughnessTex;
+uniform sampler2D emissionTex;
 uniform vec3 lights[32];
 uniform vec3 lightColors[32];
 uniform vec3 lightDirections[32];
@@ -121,4 +122,5 @@ void main(void)
 	lightingValue *= diffuseVal;
 	lightingValue += ambientLight + 0.1 * (1.0 - diffuseVal);
 	fragColor += vec4(lightingValue, 0.0) * diffuse;
+	fragColor += vec4(texture(emissionTex, vTexcoord).xyz, 0.0);
 }

@@ -14,7 +14,7 @@ uniform sampler2D roughnessTex;
 uniform float diffuseVal;
 uniform float metallic;
 
-out vec4 fragColor[4];
+out vec4 fragColor[5];
 
 void main(void)
 {
@@ -23,4 +23,5 @@ void main(void)
 	fragColor[1] = vec4(normalize(normalMap.r * vTangent + normalMap.g * vBiTangent + normalMap.b * vNormal), 1.0);
 	fragColor[2] = vec4(vPosition, 1.0);
 	fragColor[3] = vec4(clamp(texture(roughnessTex, vTexcoord).x, 0.01, 1.0), metallic, diffuseVal, 1.0);
+	fragColor[4] = vec4(0.0, 0.0, 0.0, 1.0);
 }

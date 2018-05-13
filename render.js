@@ -61,5 +61,9 @@ function drawScene()
 	gl.bindTexture(gl.TEXTURE_2D, frameBufferTexs[3]);
 	gl.uniform1i(deferredShader.roughnessTex, 4);
 
+	gl.activeTexture(gl.TEXTURE3);
+	gl.bindTexture(gl.TEXTURE_2D, frameBufferTexs[4]);
+	gl.uniform1i(deferredShader.emissionTex, 3);
+
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
 }

@@ -18,7 +18,7 @@ uniform float diffuseVal;
 uniform float metallic;
 uniform vec3 cameraPos;
 
-out vec4 fragColor[4];
+out vec4 fragColor[5];
 
 void main(void)
 {
@@ -85,4 +85,5 @@ void main(void)
 		1.0 - rsm.z,
 		1.0
 	);
+	fragColor[4] = vec4(0.0, 0.0, 0.0, 1.0);
 }

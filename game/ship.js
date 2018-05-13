@@ -80,11 +80,11 @@ function Ship(intitials)
 		new PointLight([ 0, 0, 0 ], [ 0, 0, 0 ]),
 	];
 
-	this.bbMin1 = [ -8.1876, -1.755, -8.2624 ];
-	this.bbMax1 = [ 8.1876, 3.5, 3.06786 ];
+	this.bbMin1 = [ -7.1876, -1.755, -4.2624 ];
+	this.bbMax1 = [ 7.1876, 3.5, 2.06786 ];
 
-	this.bbMin2 = [ -1.6984, -1.755, -5.9234 ];
-	this.bbMax2 = [ 1.6984, 3.5, 14.7315 ];
+	this.bbMin2 = [ -0.6984, -1.755, -6.9234 ];
+	this.bbMax2 = [ 0.6984, 3.5, 10.7315 ];
 
 	registerTickObject(this);
 	hudShip = this;

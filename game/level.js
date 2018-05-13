@@ -41,7 +41,7 @@ function ovalCircuit()
 
 	// new DirectionalLight([ -8, -30, 7 ], [ 2.0, 2.0, 2.2 ]);
 	var lightHeight = 35;
-	for (var i = -5; i <= 5; i += 4)
+	for (var i = -6; i <= 6; i += 4)
 	{
 		lightCLeft.addLight(new PointLight([ 30 * i, lightHeight, -150 ], [ 1000, 1000, 1000 ]));
 		lightCRight.addLight(new PointLight([ 30 * i, lightHeight, 150 ], [ 1000, 1000, 1000 ]));

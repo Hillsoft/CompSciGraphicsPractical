@@ -25,6 +25,14 @@ function get_mysqli_object()
 	}
 }
 
+function get_all_scores()
+{
+	$query = get_mysqli_object()->prepare("SELECT * FROM `highscores` ORDER BY `time` ASC");
+	$query->execute();
+
+	return $query->get_result()->fetch_all(MYSQLI_ASSOC);
+}
+
 function get_highscore()
 {
 	$query = get_mysqli_object()->prepare("SELECT * FROM `highscores` ORDER BY `time` ASC");

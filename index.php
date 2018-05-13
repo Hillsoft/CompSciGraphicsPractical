@@ -34,6 +34,26 @@ include "ajax/func.php";
 		<div id="setup" style="width: 100%; text-align: center; vertical-align: middle; padding-top: 200px;">
 			Username: <input type="text" id="username" /><br />
 			Press a on your controller to start
+			<br />
+			<br />
+			<br />
+			<table style="margin-left: auto; margin-right: auto;">
+				<?php
+				$scores = get_all_scores();
+				for ($i = 0; $i < sizeof($scores); $i++)
+				{
+					$mins = floor($scores[$i]["time"] / 60000);
+					$secs = ($scores[$i]["time"] / 1000) % 60;
+					$millis = $scores[$i]["time"] % 1000;
+					?>
+					<tr>
+						<td style="text-align: right; padding-right: 5px;"><?php echo $scores[$i]["user"]; ?></td>
+						<td style="padding-left: 5px;"><?php echo $mins . ":" . $secs . "." . $millis; ?></td>
+					</tr>
+					<?php
+				}
+				?>
+			</table>
 		</div>
 		<div id="display" style="width: 1920px; height: 1080px; display: none;">
 			<div style="width: 100%; height: 100%; position: relative;">

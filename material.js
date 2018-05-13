@@ -186,3 +186,36 @@ function EmissiveDiffuseMaterial(texture, emission, roughness, diffuseStrength, 
 
 	return this;
 }
+
+function EmissiveDiffuseNormalRoughnessMetalSpecularMaterial(texture, emission, normalmap, rsm)
+{
+	this.prepareShader = function()
+	{
+		gl.useProgram(meshEDNRMSShader.program);
+
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, this.texture);
+		gl.uniform1i(meshEDNRMSShader.diffuse, 0);
+
+		gl.activeTexture(gl.TEXTURE1);
+		gl.bindTexture(gl.TEXTURE_2D, this.normalmap);
+		gl.uniform1i(meshEDNRMSShader.normalTex, 1);
+
+		gl.activeTexture(gl.TEXTURE2);
+		gl.bindTexture(gl.TEXTURE_2D, this.rsm);
+		gl.uniform1i(meshEDNRMSShader.roughnessTex, 2);
+
+		gl.activeTexture(gl.TEXTURE3);
+		gl.bindTexture(gl.TEXTURE_2D, this.emission);
+		gl.uniform1i(meshEDNRMSShader.emissionTex, 3);
+
+		return meshEDNRMSShader;
+	}
+
+	this.texture = texture;
+	this.normalmap = normalmap;
+	this.rsm = rsm;
+	this.emission = emission;
+
+	return this;
+}

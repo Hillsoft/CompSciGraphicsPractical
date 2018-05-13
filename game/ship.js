@@ -87,6 +87,7 @@ function Ship(intitials)
 	this.bbMax2 = [ 1.6984, 3.5, 14.7315 ];
 
 	registerTickObject(this);
+	hudShip = this;
 
 	return this;
 }
@@ -174,6 +175,7 @@ function ShipPlayerController(ship)
 
 	registerTickObject(this);
 	registerGamepadInputListener(this);
+	hudControls = this;
 
 	return this;
 }

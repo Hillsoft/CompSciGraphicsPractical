@@ -40,16 +40,31 @@ function TrackManager(ship)
 
 		if (dot(planeCenter, planeCenter) < 900 && (aabbPlaneCollision(this.ship.bbMin1, this.ship.bbMax1, planeNormal, planeConstant) || aabbPlaneCollision(this.ship.bbMin2, this.ship.bbMax2, planeNormal, planeConstant)))
 		{
-			console.log("Checkpoint " + this.nextCheckpoint + " reached");
 			if (this.nextCheckpoint == 0)
 			{
+				var lapFinishedText = "Lap Finished";
+				if (this.bestLap == null || this.lapTime < this.bestLap)
+				{
+					lapFinishedText = "New Session Record";
+					this.bestLap = Math.floor(this.lapTime);
+				}
+				if (userHighscore == null || this.lapTime < userHighscore)
+				{
+					lapFinishedText = "New Personal Best";
+					userHighscore = Math.floor(this.lapTime);
+					userHighscoreText = parseTime(userHighscore);
+					$.ajax("ajax/post_score?user=" + username + "&time=" + this.lapTime.toFixed(0));
+				}
+				if (highscore == null || this.lapTime < highscore)
+				{
+					lapFinishedText = "New World Record";
+					highscore = Math.floor(this.lapTime);
+					highscoreText = parseTime(highscore);
+				}
+
+				notify(lapFinishedText + "\n" + parseTime(this.lapTime), 3000);
+
 				this.lap++;
-				var mins = Math.floor(this.lapTime / 60000);
-				var secs = "00" + (Math.floor(this.lapTime / 1000) % 60);
-				secs = secs.substr(secs.length - 2);
-				var millis = "000" + this.lapTime % 1000;
-				millis = millis.substr(millis.length - 3);
-				console.log("Lap completed - " + mins + ":" + secs + "." + millis);
 				this.lapTime = 0;
 			}
 
@@ -78,8 +93,10 @@ function TrackManager(ship)
 	this.nextCheckpoint = 1;
 	this.lap = 0;
 	this.lapTime = 0;
+	this.bestLap = null;
 
 	this.ship.setTrackManager(this);
+	hudTM = this;
 
 	registerTickObject(this);
 

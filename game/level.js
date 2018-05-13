@@ -27,9 +27,13 @@ function ovalCircuit()
 	var tm = new TrackManager(ship);
 
 	tm.addCheckpoint(new Checkpoint([ 0, 0, -150 ], [ 1, 0, 0 ], ship));
+	new StaticMesh(resources.checkpointsign[0], [ 0, 28, -150 ], [ 1, 0, 0 ], [ 0, 1, 0 ]);
 	tm.addCheckpoint(new Checkpoint([ 450, 0, 0 ], [ 0, 0, 1 ], ship));
+	new StaticMesh(resources.checkpointsign[1], [ 450, 28, 0 ], [ 0, 0, 1 ], [ 0, 1, 0 ]);
 	tm.addCheckpoint(new Checkpoint([ 0, 0, 150 ], [ -1, 0, 0 ], ship));
+	new StaticMesh(resources.checkpointsign[2], [ 0, 28, 150 ], [ -1, 0, 0 ], [ 0, 1, 0 ]);
 	tm.addCheckpoint(new Checkpoint([ -450, 0, 0 ], [ 0, 0, 1 ], ship));
+	new StaticMesh(resources.checkpointsign[3], [ -450, 28, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
 
 
 	var lightCLeft = new LightCullingVolume([ -500, 0, -180 ], [ 500, 50, 0 ]);
@@ -76,8 +80,8 @@ function ovalCircuit()
 	lightCBottom.addLight(new PointLight([ -450, lightHeight, 0 ], [ 1000, 1000, 1000, 1000 ]));
 	new StaticMesh(resources.light, [ -450, lightHeight, 0 ], [ 1, 0, 0 ], [ 0, 1, 0 ]);
 
-	new StaticMesh(resources.ovalfloor, [ 0, 0, 0 ], [ 1, 0, 0 ], [ 0, 1, 0 ]);
 	new StaticMesh(resources.ovalwalls, [ 0, 0, 0 ], [ 1, 0, 0 ], [ 0, 1, 0 ]);
+	new StaticMesh(resources.ovalfloor, [ 0, 0, 0 ], [ 1, 0, 0 ], [ 0, 1, 0 ]);
 
 	// Straight walls
 	new Wall([ 300, 0, 120 ], [ -300, 0, 120 ], ship);

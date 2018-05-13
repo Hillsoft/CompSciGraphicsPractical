@@ -15,6 +15,7 @@ function Wall(startPos, endPos, ship)
 
 		if (aabbRayCollision(this.ship.bbMin1, this.ship.bbMax1, localStartPos, localEndPos) || aabbRayCollision(this.ship.bbMin2, this.ship.bbMax2, localStartPos, localEndPos))
 		{
+			notify("You crashed", 1500);
 			this.ship.reset();
 		}
 	}

@@ -113,7 +113,7 @@ void main(void)
 
 		g = min(1.0, min(2.0 * ndoth * ndotv, 2.0 * ndoth * ndotl) / vdoth);
 
-		fragColor += vec4(vec3(max(0.0, (1.0 - diffuseVal) * (d * fresnel * g / (4.0 * ndotv * ndotl)) * lightDist) * lightColors[i] * mix(vec3(1.0), diffuse.xyz, metallic)), 0.0);
+		fragColor += vec4(vec3(max(0.0, (1.0 - diffuseVal) * (d * fresnel * g / (4.0 * ndotv * ndotl)) * lightDist) * lightColors[i] * mix(vec3(1.0), normalize(diffuse.xyz), metallic)), 0.0);
 
 		curLight = max(0.0, ndotl * lightDist);
 		lightingValue += curLight * lightColors[i];

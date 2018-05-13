@@ -40,6 +40,7 @@ var resources = {
 var stats = {
 	triangles: 0,
 };
+var interfaceElements = {};
 var frameBuffer;
 var frameBufferTexs = [];
 var quad = null;
@@ -48,7 +49,7 @@ var anisotropicFilter = null;
 var registerTickObject = llAdd(tickObjects);
 var unregisterTickObject = llRemove(tickObjects);
 
-function graphicsInit(canvasId)
+function graphicsInit(containerId, canvasId)
 {
 	canvas = document.getElementById(canvasId);
 
@@ -56,19 +57,33 @@ function graphicsInit(canvasId)
 	document.addEventListener("mozpointerlockchange", pointerLockChange, false);
 	document.addEventListener("webkitpointerlockchange", pointerLockChange, false);
 
-	$("#" + canvasId).click(function() {
-		var clickedEl = $("#" + canvasId).get()[0];
+	$("#" + containerId).click(function() {
+		var clickedEl = $("#" + containerId).get()[0];
 		clickedEl.requestPointerLock = clickedEl.requestPointerLock ||
 							clickedEl.mozRequestPointerLock ||
 							clickedEl.webkitRequestPointerLock;
 
 		clickedEl.requestPointerLock();
 
-		canvas.requestFullScreen = canvas.requestFullScreen ||
-			canvas.mozRequestFullScreen ||
-			canvas.webkitRequestFullScreen;
-		canvas.requestFullScreen();
+		clickedEl.requestFullScreen = clickedEl.requestFullScreen ||
+			clickedEl.mozRequestFullScreen ||
+			clickedEl.webkitRequestFullScreen;
+		clickedEl.requestFullScreen();
 	});
+
+	interfaceElements.frameTime = document.createTextNode("");
+	document.getElementById("frameTime").appendChild(interfaceElements.frameTime);
+
+	interfaceElements.fps = document.createTextNode("");
+	document.getElementById("fps").appendChild(interfaceElements.fps);
+
+	interfaceElements.triangles = document.createTextNode("");
+	document.getElementById("tris").appendChild(interfaceElements.triangles);
+
+	interfaceElements.lights = document.createTextNode("");
+	document.getElementById("lights").appendChild(interfaceElements.lights);
+
+	initHUD();
 
 	gl = canvas.getContext("webgl2");
 
@@ -202,6 +217,8 @@ function loadResources(callback)
 		$.ajax("shaders/mesh_DNRMSPOM_FragmentShader.glsl"),
 		$.ajax("shaders/mesh_ED_VertexShader.glsl"),
 		$.ajax("shaders/mesh_ED_FragmentShader.glsl"),
+		$.ajax("shaders/mesh_EDNRMS_VertexShader.glsl"),
+		$.ajax("shaders/mesh_EDNRMS_FragmentShader.glsl"),
 		$.ajax("shaders/deferredVertexShader.glsl"),
 		$.ajax("shaders/deferredFragmentCookTorranceShader.glsl"),
 		$.ajax("res/matobj_suzanne/suzanne.obj"),
@@ -223,6 +240,11 @@ function loadResources(callback)
 		loadImage("res/obj_checkpoint/diffuseaoblend.jpg"),
 		loadImage("res/obj_checkpoint/normals.jpg"),
 		loadImage("res/obj_checkpoint/roughness.jpg"),
+		$.ajax("res/obj_checkpoint/sign.obj"),
+		loadImage("res/obj_checkpoint/signemission0.png"),
+		loadImage("res/obj_checkpoint/signemission1.png"),
+		loadImage("res/obj_checkpoint/signemission2.png"),
+		loadImage("res/obj_checkpoint/signemission3.png"),
 		$.ajax("res/obj_light/light.obj"),
 		loadImage("res/obj_light/diffuse.png"),
 		loadImage("res/obj_light/emission.png"),
@@ -258,6 +280,9 @@ function loadResources(callback)
 		loadImage("res/mat_rockore/normals.jpg"),
 		loadImage("res/mat_rockore/rsm.jpg"),
 		loadImage("res/mat_rockore/displacement.png"),
+		loadImage("res/mat_gunmetal/diffuse.jpg"),
+		loadImage("res/mat_gunmetal/normals.jpg"),
+		loadImage("res/mat_gunmetal/rsm.jpg"),
 	).done(function(
 		mbvs, mbfs,
 		mdvs, mdfs,
@@ -265,6 +290,7 @@ function loadResources(callback)
 		dnrpomvs, dnrpomfs,
 		dnrmspomvs, dnrmspomfs,
 		edvs, edfs,
+		ednrmsvs, ednrmsfs,
 		dvs, dfs,
 		su, suao,
 		striplight, stripfitting,
@@ -274,6 +300,7 @@ function loadResources(callback)
 		spiraltower,
 		ovalfloor, ovalwalls,
 		checkpoint, checkpointdiffuse, checkpointnorm, checkpointrough,
+		checkpointsign, checkpointsign0, checkpointsign1, checkpointsign2, checkpointsign3,
 		light, lightdiffuse, lightemission,
 		stoneslabsdiffuse, stoneslabsnorm, stoneslabsrough, stoneslabsdisplacement,
 		tilesdiffuse, tilesnorm, tilesrough, tilesdisplacement,
@@ -284,6 +311,7 @@ function loadResources(callback)
 		rustmetaldiffuse, rustmetalnorm, rustmetalrough,
 		metalhexdiffuse, metalhexnorm, metalhexrough, metalhexdisplacement,
 		orediffuse, orenorm, orersm, oredisplacement,
+		gunmetaldiffuse, gunmetalnorm, gunmetalrsm,
 	) {
 		meshBasicShader = {
 			program: makeProgram(mbvs[0], mbfs[0]),
@@ -390,6 +418,23 @@ function loadResources(callback)
 		meshEDShader.normal = gl.getAttribLocation(meshEDShader.program, "normal");
 		meshEDShader.texcoord = gl.getAttribLocation(meshEDShader.program, "texCoord");
 
+		meshEDNRMSShader = {
+			program: makeProgram(ednrmsvs[0], ednrmsfs[0])
+		};
+
+		meshEDNRMSShader.pMatrix = gl.getUniformLocation(meshEDNRMSShader.program, "pMatrix");
+		meshEDNRMSShader.vMatrix = gl.getUniformLocation(meshEDNRMSShader.program, "vMatrix");
+		meshEDNRMSShader.mMatrix = gl.getUniformLocation(meshEDNRMSShader.program, "mMatrix");
+		meshEDNRMSShader.diffuse = gl.getUniformLocation(meshEDNRMSShader.program, "diffuseTex");
+		meshEDNRMSShader.normalTex = gl.getUniformLocation(meshEDNRMSShader.program, "normalTex");
+		meshEDNRMSShader.roughnessTex = gl.getUniformLocation(meshEDNRMSShader.program, "roughnessTex");
+		meshEDNRMSShader.emissionTex = gl.getUniformLocation(meshEDNRMSShader.program, "emissionTex");;
+		meshEDNRMSShader.position = gl.getAttribLocation(meshEDNRMSShader.program, "position");
+		meshEDNRMSShader.normal = gl.getAttribLocation(meshEDNRMSShader.program, "normal");
+		meshEDNRMSShader.texcoord = gl.getAttribLocation(meshEDNRMSShader.program, "texcoord");
+		meshEDNRMSShader.tangent = gl.getAttribLocation(meshEDNRMSShader.program, "tangent");
+		meshEDNRMSShader.biTangent = gl.getAttribLocation(meshEDNRMSShader.program, "biTangent");
+
 		deferredShader = {
 			program: makeProgram(dvs[0], dfs[0])
 		};
@@ -434,6 +479,11 @@ function loadResources(callback)
 		resources.tower = new Model(spiraltower[0], new BasicMaterial([ 0.8, 0.8, 1.0 ], 0.5, 0.7, 0.0));
 		resources.ovalfloor = new Model(ovalfloor[0], resources.metalHexMat);
 		resources.checkpoint = new Model(checkpoint[0], new DiffuseNormalRoughnessMaterial(checkpointdiffuse, checkpointnorm, checkpointrough, 0.0, 1.0));
+		resources.checkpointsign = [];
+		resources.checkpointsign[0] = new Model(checkpointsign[0], new EmissiveDiffuseNormalRoughnessMetalSpecularMaterial(gunmetaldiffuse, checkpointsign0, gunmetalnorm, gunmetalrsm));
+		resources.checkpointsign[1] = new Model(checkpointsign[0], new EmissiveDiffuseNormalRoughnessMetalSpecularMaterial(gunmetaldiffuse, checkpointsign1, gunmetalnorm, gunmetalrsm));
+		resources.checkpointsign[2] = new Model(checkpointsign[0], new EmissiveDiffuseNormalRoughnessMetalSpecularMaterial(gunmetaldiffuse, checkpointsign2, gunmetalnorm, gunmetalrsm));
+		resources.checkpointsign[3] = new Model(checkpointsign[0], new EmissiveDiffuseNormalRoughnessMetalSpecularMaterial(gunmetaldiffuse, checkpointsign3, gunmetalnorm, gunmetalrsm));
 		resources.oreMat = new DiffuseNormalRoughnessMetalSpecularPOMMaterial(orediffuse, orenorm, orersm, oredisplacement, 0.05, 8);
 		resources.ovalwalls = new Model(ovalwalls[0], resources.oreMat);
 		resources.light = new Model(light[0], new EmissiveDiffuseMaterial(lightdiffuse, lightemission, 1.0, 0.0, 0.0));
@@ -458,18 +508,16 @@ function mainLoop(time)
 
 	drawScene();
 
-	if (!mouseLocked)
-	{
-		updateStats((performance.now() - time).toFixed(0), (1000/dt).toFixed(0));
-	}
+	updateStats((performance.now() - time).toFixed(0), (1000/dt).toFixed(0));
+	updateHUD();
 
 	window.requestAnimationFrame(mainLoop);
 }
 
 async function updateStats(time, fps)
 {
-	$("#time").html(time + "ms");
-	$("#fps").html(fps);
-	$("#tris").html(stats.triangles);
-	$("#lights").html(lightNum);
+	interfaceElements.frameTime.nodeValue = time + "ms";
+	interfaceElements.fps.nodeValue = fps;
+	interfaceElements.triangles.nodeValue = stats.triangles;
+	interfaceElements.lights.nodeValue = lightNum;
 }

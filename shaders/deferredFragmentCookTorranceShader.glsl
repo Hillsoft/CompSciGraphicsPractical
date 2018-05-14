@@ -64,14 +64,14 @@ void main(void)
 	float fresnel = 0.0;
 	float ndotl = 0.0;
 	float ndoth = 0.0;
-	float ndotv = 0.0;
+	float ndotv = max(0.0, dot(normal, relativeCamera));
 	float vdoth = 0.0;
 	vec3 halfVector = vec3(0.0);
 	float d = 0.0;
 	float g = 1.0;
 	for (int i = 0; i < numLights; i++)
 	{
-		if (lightColors[i] == vec3(0.0))
+		if (dot(lightColors[i], lightColors[i]) < 0.01)
 		{
 			continue;
 		}
@@ -96,7 +96,6 @@ void main(void)
 		ndotl = max(0.0, dot(normal, relativeLight));
 		halfVector = normalize(relativeLight + relativeCamera);
 		ndoth = max(0.0, dot(normal, halfVector));
-		ndotv = max(0.0, dot(normal, relativeCamera));
 		vdoth = max(0.0, dot(relativeCamera, halfVector));
 
 		if (ndoth <= 0.0)

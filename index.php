@@ -38,17 +38,23 @@ include "ajax/func.php";
 			<br />
 			<br />
 			<table style="margin-left: auto; margin-right: auto;">
+				<tr>
+					<td style="text-align: center;">User</td>
+					<td style="text-align: center;">Time</td>
+					<td style="text-align: center;">Date achieved</td>
+				</tr>
 				<?php
 				$scores = get_all_scores();
 				for ($i = 0; $i < sizeof($scores); $i++)
 				{
 					$mins = floor($scores[$i]["time"] / 60000);
-					$secs = ($scores[$i]["time"] / 1000) % 60;
-					$millis = $scores[$i]["time"] % 1000;
+					$secs = str_pad(($scores[$i]["time"] / 1000) % 60, 2, "0", STR_PAD_LEFT);
+					$millis = str_pad($scores[$i]["time"] % 1000, 3, "0", STR_PAD_LEFT);
 					?>
 					<tr>
 						<td style="text-align: right; padding-right: 5px;"><?php echo $scores[$i]["user"]; ?></td>
 						<td style="padding-left: 5px;"><?php echo $mins . ":" . $secs . "." . $millis; ?></td>
+						<td style="padding-left: 15px; padding-right: 15px;"><?php echo substr($scores[$i]["date_set"], 0, 10); ?></td>
 					</tr>
 					<?php
 				}

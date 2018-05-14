@@ -9,7 +9,7 @@ var camera = null;
 var tickObjects = {
 	next: null
 };
-var oldTime = 0;
+var oldTime = -1;
 var resources = {
 	suzanne: null,
 	suzanneMat: null,
@@ -162,7 +162,7 @@ function graphicsInit(containerId, canvasId)
 		// demoLevel();
 		ovalCircuit();
 
-		mainLoop(0);
+		mainLoop(-1);
 	});
 }
 
@@ -501,6 +501,11 @@ function loadResources(callback)
 function mainLoop(time)
 {
 	var dt = time - oldTime;
+	if (oldTime < 0)
+	{
+		dt = 0;
+	}
+	console.log(dt);
 	oldTime = time;
 
 	var curObject = tickObjects.next;

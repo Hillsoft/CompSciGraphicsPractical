@@ -36,8 +36,8 @@ function ovalCircuit()
 	new StaticMesh(resources.checkpointsign[3], [ -450, 28, 0 ], [ 0, 0, -1 ], [ 0, 1, 0 ]);
 
 
-	var lightCLeft = new LightCullingVolume([ -500, 0, -180 ], [ 500, 50, 0 ]);
-	var lightCRight = new LightCullingVolume([ -500, 0, 0 ], [ 500, 50, 180 ]);
+	var lightCLeft = new LightCullingVolume([ -500, 0, -200 ], [ 500, 50, 0 ]);
+	var lightCRight = new LightCullingVolume([ -500, 0, 0 ], [ 500, 50, 200 ]);
 
 	// new DirectionalLight([ -8, -30, 7 ], [ 2.0, 2.0, 2.2 ]);
 	var lightHeight = 35;
@@ -50,7 +50,7 @@ function ovalCircuit()
 		new StaticMesh(resources.light, [ 30 * i, lightHeight, 150 ], [ 1, 0, 0 ], [ 0, 1, 0 ]);
 	}
 
-	var lightCLeftWide = new LightCullingVolume([ -500, 0, -180 ], [ 500, 50, 120 ]);
+	var lightCLeftWide = new LightCullingVolume([ -500, 0, -200 ], [ 500, 50, 120 ]);
 	lightCLeftWide.addLight(new PointLight([ 300, lightHeight, -150 ], [ 1000, 1000, 1000 ]));
 	lightCLeftWide.addLight(new PointLight([ -300, lightHeight, -150 ], [ 1000, 1000, 1000 ]));
 	lightCLeftWide.addLight(new PointLight([ 406.066, lightHeight, -106.066 ], [ 1000, 1000, 1000 ]));
@@ -61,7 +61,7 @@ function ovalCircuit()
 	new StaticMesh(resources.light, [ 406.066, lightHeight, -106.066 ], [ 1, 0, 0 ], [ 0, 1, 0 ]);
 	new StaticMesh(resources.light, [ -406.66, lightHeight, -106.66 ], [ 1, 0, 0 ], [ 0, 1, 0 ]);
 
-	var lightCRightWide = new LightCullingVolume([ -500, 0, -120 ], [ 500, 50, 180 ]);
+	var lightCRightWide = new LightCullingVolume([ -500, 0, -120 ], [ 500, 50, 200 ]);
 	lightCRightWide.addLight(new PointLight([ 300, lightHeight, 150 ], [ 1000, 1000, 1000 ]));
 	lightCRightWide.addLight(new PointLight([ -300, lightHeight, 150 ], [ 1000, 1000, 1000 ]));
 	lightCRightWide.addLight(new PointLight([ 406.066, lightHeight, 106.066 ], [ 1000, 1000, 1000 ]));
@@ -72,11 +72,11 @@ function ovalCircuit()
 	new StaticMesh(resources.light, [ 406.066, lightHeight, 106.066 ], [ 1, 0, 0 ], [ 0, 1, 0 ]);
 	new StaticMesh(resources.light, [ -406.66, lightHeight, 106.66 ], [ 1, 0, 0 ], [ 0, 1, 0 ]);
 
-	var lightCTop = new LightCullingVolume([ 270, 0, -180 ], [ 500, 50, 180 ]);
+	var lightCTop = new LightCullingVolume([ 270, 0, -200 ], [ 500, 50, 200 ]);
 	lightCTop.addLight(new PointLight([ 450, lightHeight, 0 ], [ 1000, 1000, 1000, 1000 ]));
 	new StaticMesh(resources.light, [ 450, lightHeight, 0 ], [ 1, 0, 0 ], [ 0, 1, 0 ]);
 
-	var lightCBottom = new LightCullingVolume([ -500, 0, -180 ], [ -270, 50, 180 ]);
+	var lightCBottom = new LightCullingVolume([ -500, 0, -200 ], [ -270, 50, 200 ]);
 	lightCBottom.addLight(new PointLight([ -450, lightHeight, 0 ], [ 1000, 1000, 1000, 1000 ]));
 	new StaticMesh(resources.light, [ -450, lightHeight, 0 ], [ 1, 0, 0 ], [ 0, 1, 0 ]);
 

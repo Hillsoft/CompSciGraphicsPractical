@@ -70,8 +70,7 @@ void main(void)
 	float prev = texture(displacementTex, prevuv).r - (1.0 - curLayerDepth) + layerDepth;
 	float weight = next / (next - prev);
 
-	// vec2 pTexcoord = mix(curuv, prevuv, weight);
-	vec2 pTexcoord = prevuv;
+	vec2 pTexcoord = mix(curuv, prevuv, weight);
 
 
 	vec4 normalMap = 2.0 * texture(normalTex, pTexcoord) - vec4(1.0);

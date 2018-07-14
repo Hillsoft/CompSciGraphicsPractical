@@ -2,4 +2,9 @@
 
 include "func.php";
 
-echo get_user_highscore($_GET["user"])["time"];
+$userInfo = get_user_highscore($_GET["user"]);
+
+if ($userInfo == "null")
+	echo "null";
+else
+	echo $userInfo["time"];

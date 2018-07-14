@@ -91,7 +91,8 @@ include "ajax/func.php";
 		</div>
 
 		<script>
-			var highscore = <?php echo get_highscore()["time"]; ?>;
+			/*var highscore = <?php echo (get_highscore() == null ? "null" : get_highscore()["time"]); ?>;*/
+			var highscore = null;
 			var highscoreText = highscore == null ? "" : parseTime(highscore);
 			var userHighscore = null;
 			var userHighscoreText = "";

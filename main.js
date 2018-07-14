@@ -505,7 +505,6 @@ function mainLoop(time)
 	{
 		dt = 0;
 	}
-	console.log(dt);
 	oldTime = time;
 
 	var curObject = tickObjects.next;
